@@ -5,6 +5,8 @@ import mongoose, { Schema, model, models } from 'mongoose';
 const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  employeeNumber: { type: String },
+  cellPhone: { type: String },
   role: { 
     type: String, 
     enum: ['admin', 'manager', 'purchaser', 'warehouse', 'dependency'], 

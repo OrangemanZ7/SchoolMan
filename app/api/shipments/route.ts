@@ -32,9 +32,29 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     // Basic validation
-    if (!data.shipmentNumber || !data.fromLocation || !data.toLocation || !data.items || data.items.length === 0) {
+    if (!data.fromLocation || !data.toLocation || !data.items || data.items.length === 0) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Generate Shipment Number: SHP-YYYY-#####
+    const currentYear = new Date().getFullYear();
+    const yearPrefix = `SHP-${currentYear}-`;
+    
+    // Find the latest shipment for this year
+    const latestShipment = await Shipment.findOne({ 
+      shipmentNumber: { $regex: `^${yearPrefix}` } 
+    }).sort({ shipmentNumber: -1 });
+
+    let nextSequence = 1;
+    if (latestShipment && latestShipment.shipmentNumber) {
+      const parts = latestShipment.shipmentNumber.split('-');
+      if (parts.length === 3) {
+        nextSequence = parseInt(parts[2], 10) + 1;
+      }
+    }
+
+    const shipmentNumber = `${yearPrefix}${nextSequence.toString().padStart(5, '0')}`;
+    data.shipmentNumber = shipmentNumber;
 
     // Validate that we have enough inventory in the fromLocation
     for (const item of data.items) {

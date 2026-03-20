@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Users, Loader2, Building2, Phone, Mail } from 'lucide-react';
+import { formatPhoneNumber } from '@/lib/utils';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -81,16 +82,24 @@ export default function SuppliersPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-col space-y-1">
                         {supplier.email && (
-                          <div className="flex items-center text-slate-500">
+                          <a 
+                            href={`mailto:${supplier.email}`}
+                            className="flex items-center text-slate-500 hover:text-emerald-600 transition-colors"
+                          >
                             <Mail className="h-3.5 w-3.5 mr-1.5" />
                             {supplier.email}
-                          </div>
+                          </a>
                         )}
                         {supplier.phone && (
-                          <div className="flex items-center text-slate-500">
+                          <a 
+                            href={`https://wa.me/55${supplier.phone.replace(/[^\d]/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-slate-500 hover:text-emerald-600 transition-colors"
+                          >
                             <Phone className="h-3.5 w-3.5 mr-1.5" />
-                            {supplier.phone}
-                          </div>
+                            {formatPhoneNumber(supplier.phone)}
+                          </a>
                         )}
                       </div>
                     </td>

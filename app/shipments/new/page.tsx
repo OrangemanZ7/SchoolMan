@@ -9,7 +9,6 @@ import { Plus, Trash2, ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-reac
 import Link from 'next/link';
 
 const shipmentSchema = z.object({
-  shipmentNumber: z.string().min(1, 'Shipment number is required'),
   fromLocation: z.string().min(1, 'Origin is required'),
   toLocation: z.string().min(1, 'Destination is required'),
   items: z.array(
@@ -43,7 +42,6 @@ export default function NewShipmentPage() {
   } = useForm<ShipmentFormValues>({
     resolver: zodResolver(shipmentSchema),
     defaultValues: {
-      shipmentNumber: '',
       fromLocation: '',
       toLocation: '',
       items: [{ product: '', quantity: 1 }],
@@ -148,17 +146,7 @@ export default function NewShipmentPage() {
         {/* Shipment Details */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Shipment Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Shipment Number</label>
-              <input
-                {...register('shipmentNumber')}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. SHP-2026-001"
-              />
-              {errors.shipmentNumber && <p className="mt-1 text-sm text-red-600">{errors.shipmentNumber.message}</p>}
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">From Location</label>
               <select

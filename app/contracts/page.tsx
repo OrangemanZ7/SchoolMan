@@ -69,11 +69,10 @@ export default function ContractsPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Products</th>
+                  <th className="px-6 py-4 font-medium w-10"></th>
                   <th className="px-6 py-4 font-medium">Contract Number</th>
                   <th className="px-6 py-4 font-medium">Supplier</th>
                   <th className="px-6 py-4 font-medium">Validity</th>
-                  <th className="px-6 py-4 font-medium">Items</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                 </tr>
               </thead>
@@ -84,14 +83,12 @@ export default function ContractsPage() {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => toggleExpand(contract._id)}
-                          className="flex items-center px-3 py-1.5 text-sm font-medium rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors shadow-sm"
+                          className="p-1 rounded-md hover:bg-slate-200 text-slate-500 transition-colors"
                         >
-                          <Package className="h-4 w-4 mr-2 text-slate-400" />
-                          Products
                           {expandedContractId === contract._id ? (
-                            <ChevronUp className="h-4 w-4 ml-2 text-slate-400" />
+                            <ChevronUp className="h-5 w-5" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 ml-2 text-slate-400" />
+                            <ChevronDown className="h-5 w-5" />
                           )}
                         </button>
                       </td>
@@ -100,13 +97,8 @@ export default function ContractsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center text-slate-500">
                           <Calendar className="h-4 w-4 mr-2" />
-                          {new Date(contract.validFrom).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - {new Date(contract.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          Until {new Date(contract.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                          {contract.items.length} products
-                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
@@ -119,7 +111,7 @@ export default function ContractsPage() {
                     </tr>
                     {expandedContractId === contract._id && (
                       <tr className="bg-slate-50">
-                        <td colSpan={6} className="px-6 py-4 border-b border-slate-200">
+                        <td colSpan={5} className="px-6 py-4 border-b border-slate-200">
                           <div className="pl-12 pr-4 py-2">
                             <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center">
                               <Package className="h-4 w-4 mr-2 text-slate-500" />

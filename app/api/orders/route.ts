@@ -31,9 +31,29 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     // Basic validation
-    if (!data.orderNumber || !data.type || !data.items || data.items.length === 0) {
+    if (!data.type || !data.items || data.items.length === 0) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Generate Order Number: PO-YYYY-#####
+    const currentYear = new Date().getFullYear();
+    const yearPrefix = `PO-${currentYear}-`;
+    
+    // Find the latest order for this year
+    const latestOrder = await Order.findOne({ 
+      orderNumber: { $regex: `^${yearPrefix}` } 
+    }).sort({ orderNumber: -1 });
+
+    let nextSequence = 1;
+    if (latestOrder && latestOrder.orderNumber) {
+      const parts = latestOrder.orderNumber.split('-');
+      if (parts.length === 3) {
+        nextSequence = parseInt(parts[2], 10) + 1;
+      }
+    }
+
+    const orderNumber = `${yearPrefix}${nextSequence.toString().padStart(5, '0')}`;
+    data.orderNumber = orderNumber;
 
     // If it's a contract order, we should validate against the contract
     if (data.type === 'contract') {

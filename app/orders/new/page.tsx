@@ -9,7 +9,6 @@ import { Plus, Trash2, ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 const orderSchema = z.object({
-  orderNumber: z.string().min(1, 'Order number is required'),
   type: z.enum(['contract', 'inquiry']),
   contract: z.string().optional(),
   supplierName: z.string().optional(),
@@ -59,7 +58,6 @@ export default function NewOrderPage() {
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      orderNumber: '',
       type: 'contract',
       contract: '',
       supplierName: '',
@@ -180,16 +178,6 @@ export default function NewOrderPage() {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Order Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Order Number</label>
-              <input
-                {...register('orderNumber')}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. PO-2026-001"
-              />
-              {errors.orderNumber && <p className="mt-1 text-sm text-red-600">{errors.orderNumber.message}</p>}
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Order Type</label>
               <select

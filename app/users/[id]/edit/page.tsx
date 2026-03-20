@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { use } from 'react';
 import { formatPhoneNumber } from '@/lib/utils';
 
 const userSchema = z.object({
@@ -28,17 +29,20 @@ const userSchema = z.object({
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-export default function NewUserPage() {
+export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const router = useRouter();
   const [locations, setLocations] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [error, setError] = useState('');
 
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -56,21 +60,41 @@ export default function NewUserPage() {
   const needsLocation = selectedRole === 'warehouse' || selectedRole === 'dependency';
 
   useEffect(() => {
-    async function fetchLocations() {
+    async function fetchData() {
       try {
-        const res = await fetch('/api/locations');
-        if (res.ok) {
-          const data = await res.json();
+        const [locationsRes, userRes] = await Promise.all([
+          fetch('/api/locations'),
+          fetch(`/api/users/${resolvedParams.id}`)
+        ]);
+
+        if (locationsRes.ok) {
+          const data = await locationsRes.json();
           setLocations(data);
         }
+
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          reset({
+            name: userData.name,
+            email: userData.email,
+            employeeNumber: userData.employeeNumber || '',
+            cellPhone: userData.cellPhone || '',
+            role: userData.role,
+            location: userData.location?._id || userData.location || '',
+          });
+        } else {
+          setError('Failed to fetch user details.');
+        }
       } catch (err) {
-        console.error('Failed to fetch locations', err);
+        console.error('Failed to fetch data', err);
+        setError('An error occurred while fetching data.');
       } finally {
         setIsLoadingLocations(false);
+        setIsLoadingUser(false);
       }
     }
-    fetchLocations();
-  }, []);
+    fetchData();
+  }, [resolvedParams.id, reset]);
 
   const onSubmit = async (data: UserFormValues) => {
     setIsSubmitting(true);
@@ -83,15 +107,15 @@ export default function NewUserPage() {
     }
 
     try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
+      const res = await fetch(`/api/users/${resolvedParams.id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create user');
+        throw new Error(errorData.error || 'Failed to update user');
       }
 
       router.push('/users');
@@ -102,6 +126,15 @@ export default function NewUserPage() {
     }
   };
 
+  if (isLoadingUser) {
+    return (
+      <div className="flex items-center justify-center py-12 text-slate-500">
+        <Loader2 className="h-8 w-8 animate-spin mr-3" />
+        Loading user details...
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <header className="mb-8 flex items-center justify-between">
@@ -110,8 +143,8 @@ export default function NewUserPage() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             <Link href="/users">Back to Users</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Add New User</h1>
-          <p className="mt-2 text-slate-600">Create a new user and assign roles and permissions.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Edit User</h1>
+          <p className="mt-2 text-slate-600">Update user details, roles, and permissions.</p>
         </div>
       </header>
 
@@ -199,27 +232,6 @@ export default function NewUserPage() {
                 ))}
               </select>
               {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location.message}</p>}
-              
-              {locations.length === 0 && !isLoadingLocations && needsLocation && (
-                <div className="mt-2">
-                  <p className="text-xs text-amber-600 mb-2">No locations found. Please seed locations first.</p>
-                  <button 
-                    type="button" 
-                    onClick={async () => {
-                      setIsLoadingLocations(true);
-                      await fetch('/api/locations/seed', { method: 'POST' });
-                      const res = await fetch('/api/locations');
-                      if (res.ok) {
-                        setLocations(await res.json());
-                      }
-                      setIsLoadingLocations(false);
-                    }}
-                    className="px-3 py-1 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded text-xs font-medium transition-colors"
-                  >
-                    Seed Demo Locations
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -239,12 +251,12 @@ export default function NewUserPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Updating...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save User
+                Update User
               </>
             )}
           </button>

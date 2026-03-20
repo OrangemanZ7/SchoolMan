@@ -102,8 +102,9 @@ export default function InventoryPage() {
                   <th className="px-6 py-4 font-medium">Brand</th>
                   <th className="px-6 py-4 font-medium">Supplier</th>
                   <th className="px-6 py-4 font-medium">Category</th>
+                  <th className="px-6 py-4 font-medium">Unit</th>
                   <th className="px-6 py-4 font-medium">Location</th>
-                  <th className="px-6 py-4 font-medium">Quantity in Stock</th>
+                  <th className="px-6 py-4 font-medium">In Stock</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -121,6 +122,9 @@ export default function InventoryPage() {
                     <td className="px-6 py-4 capitalize">
                       {item.product?.category || 'N/A'}
                     </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      {item.product?.unit || '-'}
+                    </td>
                     <td className="px-6 py-4">
                       {item.location?.name || 'Unknown Location'}
                     </td>
@@ -130,7 +134,7 @@ export default function InventoryPage() {
                         item.quantity > 0 ? 'bg-amber-100 text-amber-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {item.quantity} {item.product?.unit || 'units'}
+                        {item.quantity}
                       </span>
                     </td>
                   </tr>
