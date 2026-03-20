@@ -30,15 +30,15 @@ export default function SuppliersPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Suppliers</h1>
-          <p className="mt-2 text-slate-600">Manage vendors for public contracts and ad-hoc purchases.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Fornecedores</h1>
+          <p className="mt-2 text-slate-600">Gerencie fornecedores para contratos públicos e compras avulsas.</p>
         </div>
         <Link
           href="/suppliers/new"
           className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors"
         >
           <Plus className="h-5 w-5 mr-2" />
-          New Supplier
+          Novo Fornecedor
         </Link>
       </header>
 
@@ -46,18 +46,18 @@ export default function SuppliersPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-slate-500">
             <Loader2 className="h-8 w-8 animate-spin mr-3" />
-            Loading suppliers...
+            Carregando fornecedores...
           </div>
         ) : suppliers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-500">
             <Building2 className="h-12 w-12 text-slate-300 mb-4" />
-            <p className="text-lg font-medium text-slate-900">No suppliers found</p>
-            <p className="mt-1">Get started by adding a new supplier to the system.</p>
+            <p className="text-lg font-medium text-slate-900">Nenhum fornecedor encontrado</p>
+            <p className="mt-1">Comece adicionando um novo fornecedor ao sistema.</p>
             <Link
               href="/suppliers/new"
               className="mt-6 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 font-medium transition-colors"
             >
-              Add Supplier
+              Adicionar Fornecedor
             </Link>
           </div>
         ) : (
@@ -65,10 +65,10 @@ export default function SuppliersPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Alias / Name</th>
-                  <th className="px-6 py-4 font-medium">Document (CNPJ/CPF)</th>
-                  <th className="px-6 py-4 font-medium">Contact Info</th>
-                  <th className="px-6 py-4 font-medium">Attendant</th>
+                  <th className="px-6 py-4 font-medium">Nome Fantasia / Razão Social</th>
+                  <th className="px-6 py-4 font-medium">Documento (CNPJ/CPF)</th>
+                  <th className="px-6 py-4 font-medium">Informações de Contato</th>
+                  <th className="px-6 py-4 font-medium">Atendente</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">

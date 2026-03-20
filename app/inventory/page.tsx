@@ -51,8 +51,8 @@ export default function InventoryPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Inventory Management</h1>
-          <p className="mt-2 text-slate-600">Track stock levels across all locations.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Gerenciamento de Estoque</h1>
+          <p className="mt-2 text-slate-600">Acompanhe os níveis de estoque em todos os locais.</p>
         </div>
         
         <div className="flex items-center gap-4">
@@ -63,10 +63,10 @@ export default function InventoryPage() {
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-sm"
             >
-              <option value="">All Locations</option>
+              <option value="">Todos os Locais</option>
               {locations.map((loc) => (
                 <option key={loc._id} value={loc._id}>
-                  {loc.name} ({loc.type})
+                  {loc.name} ({loc.type === 'central' ? 'central' : 'dependência'})
                 </option>
               ))}
             </select>
@@ -76,7 +76,7 @@ export default function InventoryPage() {
             className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors text-sm"
           >
             <PackagePlus className="h-4 w-4 mr-2" />
-            New Product
+            Novo Produto
           </button>
         </div>
       </header>
@@ -85,33 +85,33 @@ export default function InventoryPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-slate-500">
             <Loader2 className="h-8 w-8 animate-spin mr-3" />
-            Loading inventory...
+            Carregando estoque...
           </div>
         ) : inventory.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-500">
             <Package className="h-12 w-12 text-slate-300 mb-4" />
-            <p className="text-lg font-medium text-slate-900">No inventory found</p>
-            <p className="mt-1">Inventory is automatically initialized when contracts are created.</p>
+            <p className="text-lg font-medium text-slate-900">Nenhum estoque encontrado</p>
+            <p className="mt-1">O estoque é inicializado automaticamente quando contratos são criados.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Product</th>
-                  <th className="px-6 py-4 font-medium">Brand</th>
-                  <th className="px-6 py-4 font-medium">Supplier</th>
-                  <th className="px-6 py-4 font-medium">Category</th>
-                  <th className="px-6 py-4 font-medium">Unit</th>
-                  <th className="px-6 py-4 font-medium">Location</th>
-                  <th className="px-6 py-4 font-medium">In Stock</th>
+                  <th className="px-6 py-4 font-medium">Produto</th>
+                  <th className="px-6 py-4 font-medium">Marca</th>
+                  <th className="px-6 py-4 font-medium">Fornecedor</th>
+                  <th className="px-6 py-4 font-medium">Categoria</th>
+                  <th className="px-6 py-4 font-medium">Unidade</th>
+                  <th className="px-6 py-4 font-medium">Local</th>
+                  <th className="px-6 py-4 font-medium">Em Estoque</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {inventory.map((item) => (
                   <tr key={item._id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">
-                      {item.product?.name || 'Unknown Product'}
+                      {item.product?.name || 'Produto Desconhecido'}
                     </td>
                     <td className="px-6 py-4 text-slate-600">
                       {item.product?.brand || '-'}
@@ -120,13 +120,13 @@ export default function InventoryPage() {
                       {item.product?.supplier?.alias || item.product?.supplier?.name || '-'}
                     </td>
                     <td className="px-6 py-4 capitalize">
-                      {item.product?.category || 'N/A'}
+                      {item.product?.category === 'meal' ? 'alimentação' : item.product?.category === 'office' ? 'escritório' : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-slate-600">
                       {item.product?.unit || '-'}
                     </td>
                     <td className="px-6 py-4">
-                      {item.location?.name || 'Unknown Location'}
+                      {item.location?.name || 'Local Desconhecido'}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

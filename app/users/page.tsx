@@ -29,7 +29,7 @@ export default function UsersPage() {
   }, []);
 
   const handleDelete = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm('Tem certeza de que deseja excluir este usuário?')) return;
     
     setIsDeleting(userId);
     try {
@@ -41,11 +41,11 @@ export default function UsersPage() {
         fetchUsers();
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to delete user');
+        alert(data.error || 'Falha ao excluir usuário');
       }
     } catch (err) {
       console.error('Failed to delete user', err);
-      alert('An error occurred while deleting the user');
+      alert('Ocorreu um erro ao excluir o usuário');
     } finally {
       setIsDeleting(null);
     }
@@ -66,15 +66,15 @@ export default function UsersPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Users & Roles</h1>
-          <p className="mt-2 text-slate-600">Manage system access, roles, and location assignments.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Usuários e Funções</h1>
+          <p className="mt-2 text-slate-600">Gerencie acesso ao sistema, funções e atribuições de local.</p>
         </div>
         <Link
           href="/users/new"
           className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors"
         >
           <Plus className="h-5 w-5 mr-2" />
-          Add User
+          Adicionar Usuário
         </Link>
       </header>
 
@@ -82,18 +82,18 @@ export default function UsersPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-slate-500">
             <Loader2 className="h-8 w-8 animate-spin mr-3" />
-            Loading users...
+            Carregando usuários...
           </div>
         ) : users.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-500">
             <Users className="h-12 w-12 text-slate-300 mb-4" />
-            <p className="text-lg font-medium text-slate-900">No users found</p>
-            <p className="mt-1">Get started by adding a new user to the system.</p>
+            <p className="text-lg font-medium text-slate-900">Nenhum usuário encontrado</p>
+            <p className="mt-1">Comece adicionando um novo usuário ao sistema.</p>
             <Link
               href="/users/new"
               className="mt-6 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 font-medium transition-colors"
             >
-              Add User
+              Adicionar Usuário
             </Link>
           </div>
         ) : (
@@ -101,12 +101,12 @@ export default function UsersPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Name</th>
-                  <th className="px-6 py-4 font-medium">Employee #</th>
-                  <th className="px-6 py-4 font-medium">Contact</th>
-                  <th className="px-6 py-4 font-medium">Role</th>
-                  <th className="px-6 py-4 font-medium">Location</th>
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
+                  <th className="px-6 py-4 font-medium">Nome</th>
+                  <th className="px-6 py-4 font-medium">Nº Funcionário</th>
+                  <th className="px-6 py-4 font-medium">Contato</th>
+                  <th className="px-6 py-4 font-medium">Função</th>
+                  <th className="px-6 py-4 font-medium">Local</th>
+                  <th className="px-6 py-4 font-medium text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -148,7 +148,11 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleBadgeColor(user.role)}`}>
                         <Shield className="h-3 w-3 mr-1" />
-                        {user.role}
+                        {user.role === 'admin' ? 'administrador' : 
+                         user.role === 'manager' ? 'gerente' :
+                         user.role === 'purchaser' ? 'comprador' :
+                         user.role === 'warehouse' ? 'almoxarifado' :
+                         user.role === 'dependency' ? 'dependência' : user.role}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -158,7 +162,7 @@ export default function UsersPage() {
                           {user.location.name}
                         </div>
                       ) : (
-                        <span className="text-slate-400 italic">Global Access</span>
+                        <span className="text-slate-400 italic">Acesso Global</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -166,7 +170,7 @@ export default function UsersPage() {
                         <Link
                           href={`/users/${user._id}/edit`}
                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                          title="Edit User"
+                          title="Editar Usuário"
                         >
                           <Edit className="h-4 w-4" />
                         </Link>
@@ -174,7 +178,7 @@ export default function UsersPage() {
                           onClick={() => handleDelete(user._id)}
                           disabled={isDeleting === user._id}
                           className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
-                          title="Delete User"
+                          title="Excluir Usuário"
                         >
                           {isDeleting === user._id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />

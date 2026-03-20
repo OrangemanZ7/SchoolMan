@@ -10,10 +10,10 @@ import Link from 'next/link';
 import { formatPhoneNumber } from '@/lib/utils';
 
 const supplierSchema = z.object({
-  name: z.string().min(1, 'Full company name is required'),
-  alias: z.string().min(1, 'Alias is required'),
-  document: z.string().min(1, 'CNPJ or CPF is required'),
-  email: z.string().email('Invalid email address').or(z.literal('')),
+  name: z.string().min(1, 'Nome completo da empresa é obrigatório'),
+  alias: z.string().min(1, 'Nome fantasia é obrigatório'),
+  document: z.string().min(1, 'CNPJ ou CPF é obrigatório'),
+  email: z.string().email('Endereço de e-mail inválido').or(z.literal('')),
   phone: z.string().optional(),
   attendantName: z.string().optional(),
 });
@@ -53,7 +53,7 @@ export default function NewSupplierPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create supplier');
+        throw new Error(errorData.error || 'Falha ao criar fornecedor');
       }
 
       router.push('/suppliers');
@@ -70,10 +70,10 @@ export default function NewSupplierPage() {
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <Link href="/suppliers">Back to Suppliers</Link>
+            <Link href="/suppliers">Voltar para Fornecedores</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">New Supplier</h1>
-          <p className="mt-2 text-slate-600">Add a new vendor to the system.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Novo Fornecedor</h1>
+          <p className="mt-2 text-slate-600">Adicione um novo fornecedor ao sistema.</p>
         </div>
       </header>
 
@@ -87,27 +87,27 @@ export default function NewSupplierPage() {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Full Company Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo da Empresa</label>
               <input
                 {...register('name')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. Fresh Foods Comércio de Alimentos Ltda."
+                placeholder="ex: Fresh Foods Comércio de Alimentos Ltda."
               />
               {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Alias (Display Name)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome Fantasia</label>
               <input
                 {...register('alias')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. Fresh Foods"
+                placeholder="ex: Fresh Foods"
               />
               {errors.alias && <p className="mt-1 text-sm text-red-600">{errors.alias.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Document (CNPJ/CPF)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Documento (CNPJ/CPF)</label>
               <input
                 {...register('document')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -117,18 +117,18 @@ export default function NewSupplierPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">E-mail</label>
               <input
                 type="email"
                 {...register('email')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="contact@supplier.com"
+                placeholder="contato@fornecedor.com"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
               <input
                 {...register('phone', {
                   onChange: (e) => {
@@ -141,11 +141,11 @@ export default function NewSupplierPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Attendant Name (Contact Person)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Atendente (Pessoa de Contato)</label>
               <input
                 {...register('attendantName')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. Maria Silva"
+                placeholder="ex: Maria Silva"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function NewSupplierPage() {
             href="/suppliers"
             className="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             type="submit"
@@ -166,12 +166,12 @@ export default function NewSupplierPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save Supplier
+                Salvar Fornecedor
               </>
             )}
           </button>

@@ -9,7 +9,9 @@ export async function GET(request: Request) {
   const code = url.searchParams.get('code');
   
   // The redirect URI must exactly match what was used in the /url endpoint
-  const redirectUri = `${url.origin}/api/auth/callback`;
+  const appUrl = process.env.APP_URL || 'http://localhost:3000';
+  const baseUrl = appUrl.replace(/\/$/, '');
+  const redirectUri = `${baseUrl}/api/auth/callback`;
 
   if (!code) {
     return new NextResponse('Missing code', { status: 400 });
@@ -100,7 +102,7 @@ export async function GET(request: Request) {
               window.location.href = '/';
             }
           </script>
-          <p>Authentication successful. This window should close automatically.</p>
+          <p>Autenticação bem-sucedida. Esta janela deve fechar automaticamente.</p>
         </body>
       </html>
     `, {

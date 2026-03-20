@@ -10,8 +10,8 @@ import Link from 'next/link';
 import { formatPhoneNumber } from '@/lib/utils';
 
 const userSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('Endereço de e-mail inválido'),
   employeeNumber: z.string().optional(),
   cellPhone: z.string().optional(),
   role: z.enum(['admin', 'manager', 'purchaser', 'warehouse', 'dependency']),
@@ -22,7 +22,7 @@ const userSchema = z.object({
   }
   return true;
 }, {
-  message: "Location is required for warehouse and dependency roles",
+  message: "Local é obrigatório para as funções de almoxarifado e dependência",
   path: ["location"],
 });
 
@@ -91,7 +91,7 @@ export default function NewUserPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create user');
+        throw new Error(errorData.error || 'Falha ao criar o usuário');
       }
 
       router.push('/users');
@@ -108,10 +108,10 @@ export default function NewUserPage() {
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <Link href="/users">Back to Users</Link>
+            <Link href="/users">Voltar para Usuários</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Add New User</h1>
-          <p className="mt-2 text-slate-600">Create a new user and assign roles and permissions.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Adicionar Novo Usuário</h1>
+          <p className="mt-2 text-slate-600">Crie um novo usuário e atribua funções e permissões.</p>
         </div>
       </header>
 
@@ -125,38 +125,38 @@ export default function NewUserPage() {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
               <input
                 {...register('name')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. Jane Doe"
+                placeholder="ex: João Silva"
               />
               {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Endereço de E-mail</label>
               <input
                 type="email"
                 {...register('email')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="jane.doe@example.com"
+                placeholder="joao.silva@exemplo.com"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Employee Number</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Número do Funcionário</label>
               <input
                 {...register('employeeNumber')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. EMP-12345"
+                placeholder="ex: EMP-12345"
               />
               {errors.employeeNumber && <p className="mt-1 text-sm text-red-600">{errors.employeeNumber.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Cell Phone</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Telefone Celular</label>
               <input
                 {...register('cellPhone', {
                   onChange: (e) => {
@@ -170,31 +170,31 @@ export default function NewUserPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Função</label>
               <select
                 {...register('role')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               >
-                <option value="admin">Administrator (Full Access)</option>
-                <option value="manager">Manager (Approve Orders)</option>
-                <option value="purchaser">Purchaser (Create Contracts/Orders)</option>
-                <option value="warehouse">Warehouse Staff (Manage Inventory)</option>
-                <option value="dependency">Dependency Staff (Request Items)</option>
+                <option value="admin">Administrador (Acesso Total)</option>
+                <option value="manager">Gerente (Aprova Pedidos)</option>
+                <option value="purchaser">Comprador (Cria Contratos/Pedidos)</option>
+                <option value="warehouse">Almoxarifado (Gerencia Estoque)</option>
+                <option value="dependency">Dependência (Solicita Itens)</option>
               </select>
               {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Location Assignment</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Atribuição de Local</label>
               <select
                 {...register('location')}
                 disabled={!needsLocation || isLoadingLocations}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white disabled:bg-slate-100 disabled:text-slate-500"
               >
-                <option value="">{needsLocation ? 'Select a location...' : 'Global Access (Not Required)'}</option>
+                <option value="">{needsLocation ? 'Selecione um local...' : 'Acesso Global (Não Requerido)'}</option>
                 {locations.map((loc) => (
                   <option key={loc._id} value={loc._id}>
-                    {loc.name} ({loc.type})
+                    {loc.name} ({loc.type === 'central' ? 'central' : 'dependência'})
                   </option>
                 ))}
               </select>
@@ -202,22 +202,7 @@ export default function NewUserPage() {
               
               {locations.length === 0 && !isLoadingLocations && needsLocation && (
                 <div className="mt-2">
-                  <p className="text-xs text-amber-600 mb-2">No locations found. Please seed locations first.</p>
-                  <button 
-                    type="button" 
-                    onClick={async () => {
-                      setIsLoadingLocations(true);
-                      await fetch('/api/locations/seed', { method: 'POST' });
-                      const res = await fetch('/api/locations');
-                      if (res.ok) {
-                        setLocations(await res.json());
-                      }
-                      setIsLoadingLocations(false);
-                    }}
-                    className="px-3 py-1 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded text-xs font-medium transition-colors"
-                  >
-                    Seed Demo Locations
-                  </button>
+                  <p className="text-xs text-amber-600 mb-2">Nenhum local encontrado. Por favor, crie locais primeiro.</p>
                 </div>
               )}
             </div>
@@ -229,7 +214,7 @@ export default function NewUserPage() {
             href="/users"
             className="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             type="submit"
@@ -239,12 +224,12 @@ export default function NewUserPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save User
+                Salvar Usuário
               </>
             )}
           </button>

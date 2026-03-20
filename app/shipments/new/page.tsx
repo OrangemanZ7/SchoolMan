@@ -9,16 +9,16 @@ import { Plus, Trash2, ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-reac
 import Link from 'next/link';
 
 const shipmentSchema = z.object({
-  fromLocation: z.string().min(1, 'Origin is required'),
-  toLocation: z.string().min(1, 'Destination is required'),
+  fromLocation: z.string().min(1, 'Origem é obrigatória'),
+  toLocation: z.string().min(1, 'Destino é obrigatório'),
   items: z.array(
     z.object({
-      product: z.string().min(1, 'Product is required'),
-      quantity: z.number().min(1, 'Quantity must be at least 1'),
+      product: z.string().min(1, 'Produto é obrigatório'),
+      quantity: z.number().min(1, 'A quantidade deve ser pelo menos 1'),
     })
-  ).min(1, 'At least one item is required'),
+  ).min(1, 'Pelo menos um item é obrigatório'),
 }).refine((data) => data.fromLocation !== data.toLocation, {
-  message: "Origin and destination cannot be the same",
+  message: "Origem e destino não podem ser os mesmos",
   path: ["toLocation"],
 });
 
@@ -106,7 +106,7 @@ export default function NewShipmentPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create shipment');
+        throw new Error(errorData.error || 'Falha ao criar remessa');
       }
 
       router.push('/shipments');
@@ -128,10 +128,10 @@ export default function NewShipmentPage() {
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <Link href="/shipments">Back to Shipments</Link>
+            <Link href="/shipments">Voltar para Remessas</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">New Shipment</h1>
-          <p className="mt-2 text-slate-600">Transfer inventory from one location to another.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Nova Remessa</h1>
+          <p className="mt-2 text-slate-600">Transfira estoque de um local para outro.</p>
         </div>
       </header>
 
@@ -145,19 +145,19 @@ export default function NewShipmentPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Shipment Details */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6">Shipment Details</h2>
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Detalhes da Remessa</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">From Location</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Local de Origem</label>
               <select
                 {...register('fromLocation')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 disabled={isLoadingLocations}
               >
-                <option value="">Select origin...</option>
+                <option value="">Selecione a origem...</option>
                 {locations.map((loc) => (
                   <option key={loc._id} value={loc._id}>
-                    {loc.name} ({loc.type})
+                    {loc.name} ({loc.type === 'central' ? 'central' : 'dependência'})
                   </option>
                 ))}
               </select>
@@ -165,16 +165,16 @@ export default function NewShipmentPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">To Location</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Local de Destino</label>
               <select
                 {...register('toLocation')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 disabled={isLoadingLocations}
               >
-                <option value="">Select destination...</option>
+                <option value="">Selecione o destino...</option>
                 {locations.map((loc) => (
                   <option key={loc._id} value={loc._id}>
-                    {loc.name} ({loc.type})
+                    {loc.name} ({loc.type === 'central' ? 'central' : 'dependência'})
                   </option>
                 ))}
               </select>
@@ -186,7 +186,7 @@ export default function NewShipmentPage() {
         {/* Shipment Items */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Items to Ship</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Itens para Enviar</h2>
             <button
               type="button"
               onClick={() => append({ product: '', quantity: 1 })}
@@ -194,13 +194,13 @@ export default function NewShipmentPage() {
               className="flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-emerald-50 disabled:hover:text-emerald-600"
             >
               <Plus className="h-4 w-4 mr-1" />
-              Add Item
+              Adicionar Item
             </button>
           </div>
 
           {!selectedFromLocation && (
             <div className="p-4 bg-blue-50 text-blue-700 rounded-lg text-sm mb-4">
-              Please select an origin location first to view available inventory.
+              Por favor, selecione um local de origem primeiro para ver o estoque disponível.
             </div>
           )}
 
@@ -211,7 +211,7 @@ export default function NewShipmentPage() {
           {isLoadingInventory ? (
             <div className="flex items-center justify-center py-8 text-slate-500">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              Loading inventory...
+              Carregando estoque...
             </div>
           ) : (
             <div className="space-y-4">
@@ -223,16 +223,16 @@ export default function NewShipmentPage() {
                   <div key={field.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Product</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Produto</label>
                         <select
                           {...register(`items.${index}.product`)}
                           className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                           disabled={!selectedFromLocation}
                         >
-                          <option value="">Select a product...</option>
+                          <option value="">Selecione um produto...</option>
                           {inventory.map((inv: any) => (
                             <option key={inv.product._id} value={inv.product._id} disabled={inv.quantity <= 0}>
-                              {inv.product.name} ({inv.quantity} {inv.product.unit} available)
+                              {inv.product.name} ({inv.quantity} {inv.product.unit} disponíveis)
                             </option>
                           ))}
                         </select>
@@ -242,13 +242,13 @@ export default function NewShipmentPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantity</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantidade</label>
                         <div className="relative">
                           <input
                             type="number"
                             {...register(`items.${index}.quantity`, { 
                               valueAsNumber: true,
-                              max: { value: availableQty, message: `Max available is ${availableQty}` }
+                              max: { value: availableQty, message: `Máximo disponível é ${availableQty}` }
                             })}
                             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             disabled={!selectedFromLocation || !selectedProductId}
@@ -270,7 +270,7 @@ export default function NewShipmentPage() {
                       onClick={() => remove(index)}
                       disabled={fields.length === 1}
                       className="mt-6 p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-                      title="Remove item"
+                      title="Remover item"
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
@@ -286,7 +286,7 @@ export default function NewShipmentPage() {
             href="/shipments"
             className="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             type="submit"
@@ -296,12 +296,12 @@ export default function NewShipmentPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Create Shipment
+                Criar Remessa
               </>
             )}
           </button>

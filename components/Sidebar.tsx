@@ -16,14 +16,14 @@ import {
 import { useAuth } from './AuthProvider';
 
 const navItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Inventory', href: '/inventory', icon: Package },
-  { name: 'Contracts (Meals)', href: '/contracts', icon: FileSignature },
-  { name: 'Purchase Orders', href: '/orders', icon: ShoppingCart },
-  { name: 'Shipments', href: '/shipments', icon: Truck },
-  { name: 'Locations', href: '/locations', icon: MapPin },
-  { name: 'Suppliers', href: '/suppliers', icon: Building2 },
-  { name: 'Users', href: '/users', icon: Users },
+  { name: 'Painel', href: '/', icon: LayoutDashboard },
+  { name: 'Estoque', href: '/inventory', icon: Package },
+  { name: 'Contratos (Alimentação)', href: '/contracts', icon: FileSignature },
+  { name: 'Pedidos de Compra', href: '/orders', icon: ShoppingCart },
+  { name: 'Remessas', href: '/shipments', icon: Truck },
+  { name: 'Locais', href: '/locations', icon: MapPin },
+  { name: 'Fornecedores', href: '/suppliers', icon: Building2 },
+  { name: 'Usuários', href: '/users', icon: Users },
 ];
 
 export default function Sidebar() {
@@ -57,18 +57,18 @@ export default function Sidebar() {
           className="group flex items-center rounded-md px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white mb-2"
         >
           <Settings className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400 group-hover:text-emerald-400" />
-          Settings
+          Configurações
         </Link>
         <button
           onClick={logout}
           className="w-full group flex items-center rounded-md px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
         >
           <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400 group-hover:text-red-400" />
-          Sign out
+          Sair
         </button>
         {user && (
           <div className="mt-4 px-2 text-xs text-slate-500 truncate">
-            Logged in as:<br/>
+            Conectado como:<br/>
             <span className="text-slate-300 font-medium">{user.email}</span>
           </div>
         )}

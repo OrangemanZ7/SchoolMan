@@ -9,22 +9,22 @@ import { Plus, Trash2, ArrowLeft, Save, Loader2, Calculator } from 'lucide-react
 import Link from 'next/link';
 
 const contractSchema = z.object({
-  contractNumber: z.string().min(1, 'Contract number is required'),
-  supplier: z.string().min(1, 'Supplier is required'),
-  validFrom: z.string().min(1, 'Start date is required'),
-  validUntil: z.string().min(1, 'End date is required'),
+  contractNumber: z.string().min(1, 'Número do contrato é obrigatório'),
+  supplier: z.string().min(1, 'Fornecedor é obrigatório'),
+  validFrom: z.string().min(1, 'Data de início é obrigatória'),
+  validUntil: z.string().min(1, 'Data de término é obrigatória'),
   items: z.array(
     z.object({
-      name: z.string().min(1, 'Product name is required'),
+      name: z.string().min(1, 'Nome do produto é obrigatório'),
       brand: z.string().optional(),
       category: z.enum(['meal', 'office']),
-      unit: z.string().min(1, 'Unit is required'),
-      pricePerUnit: z.number().min(0.01, 'Price must be greater than 0'),
-      maxQuantity: z.number().min(1, 'Quantity must be at least 1'),
+      unit: z.string().min(1, 'Unidade é obrigatória'),
+      pricePerUnit: z.number().min(0.01, 'O preço deve ser maior que 0'),
+      maxQuantity: z.number().min(1, 'A quantidade deve ser pelo menos 1'),
     })
-  ).min(1, 'At least one item is required'),
+  ).min(1, 'Pelo menos um item é obrigatório'),
 }).refine((data) => new Date(data.validFrom) <= new Date(data.validUntil), {
-  message: "End date cannot be before start date",
+  message: "A data de término não pode ser anterior à data de início",
   path: ["validUntil"],
 });
 
@@ -93,7 +93,7 @@ export default function NewContractPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create contract');
+        throw new Error(errorData.error || 'Falha ao criar contrato');
       }
 
       router.push('/contracts');
@@ -110,10 +110,10 @@ export default function NewContractPage() {
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <Link href="/contracts">Back to Contracts</Link>
+            <Link href="/contracts">Voltar para Contratos</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">New Meal Contract</h1>
-          <p className="mt-2 text-slate-600">Create a new public contract for meal ingredients.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Novo Contrato de Alimentação</h1>
+          <p className="mt-2 text-slate-600">Crie um novo contrato público para ingredientes de alimentação.</p>
         </div>
       </header>
 
@@ -127,32 +127,32 @@ export default function NewContractPage() {
         {/* Contract Details */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Contract Details</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Detalhes do Contrato</h2>
             <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
               <Calculator className="h-5 w-5" />
-              <span className="font-medium">Total Value:</span>
-              <span className="text-lg font-bold">${grandTotal.toFixed(2)}</span>
+              <span className="font-medium">Valor Total:</span>
+              <span className="text-lg font-bold">R$ {grandTotal.toFixed(2).replace('.', ',')}</span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Contract Number</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Número do Contrato</label>
               <input
                 {...register('contractNumber')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="e.g. CTR-2026-001"
+                placeholder="ex: CTR-2026-001"
               />
               {errors.contractNumber && <p className="mt-1 text-sm text-red-600">{errors.contractNumber.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Supplier</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Fornecedor</label>
               <select
                 {...register('supplier')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 disabled={isLoadingSuppliers}
               >
-                <option value="">Select a supplier...</option>
+                <option value="">Selecione um fornecedor...</option>
                 {suppliers.map((s) => (
                   <option key={s._id} value={s._id}>
                     {s.alias} ({s.document})
@@ -163,7 +163,7 @@ export default function NewContractPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Valid From</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Válido a partir de</label>
               <input
                 type="date"
                 {...register('validFrom')}
@@ -173,7 +173,7 @@ export default function NewContractPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Valid Until</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Válido até</label>
               <input
                 type="date"
                 {...register('validUntil')}
@@ -187,7 +187,7 @@ export default function NewContractPage() {
         {/* Contract Items */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Contracted Items</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Itens Contratados</h2>
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -198,7 +198,7 @@ export default function NewContractPage() {
                 className="flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Add Item Row
+                Adicionar Linha de Item
               </button>
             </div>
           </div>
@@ -217,12 +217,12 @@ export default function NewContractPage() {
                 <div key={field.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-7 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Product Name</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Nome do Produto</label>
                       <input
                         type="text"
                         {...register(`items.${index}.name`)}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                        placeholder="e.g. Rice"
+                        placeholder="ex: Arroz"
                       />
                       {errors.items?.[index]?.name && (
                         <p className="mt-1 text-xs text-red-600">{errors.items[index]?.name?.message}</p>
@@ -230,33 +230,33 @@ export default function NewContractPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Brand</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Marca</label>
                       <input
                         type="text"
                         {...register(`items.${index}.brand`)}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                        placeholder="e.g. Uncle Ben's"
+                        placeholder="ex: Tio João"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Category</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Categoria</label>
                       <select
                         {...register(`items.${index}.category`)}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                       >
-                        <option value="meal">Meal</option>
-                        <option value="office">Office</option>
+                        <option value="meal">Alimentação</option>
+                        <option value="office">Escritório</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Unit</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Unidade</label>
                       <input
                         type="text"
                         {...register(`items.${index}.unit`)}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                        placeholder="e.g. kg, box"
+                        placeholder="ex: kg, caixa"
                       />
                       {errors.items?.[index]?.unit && (
                         <p className="mt-1 text-xs text-red-600">{errors.items[index]?.unit?.message}</p>
@@ -264,7 +264,7 @@ export default function NewContractPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Price ($)</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Preço (R$)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -277,7 +277,7 @@ export default function NewContractPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantity</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantidade</label>
                       <input
                         type="number"
                         {...register(`items.${index}.maxQuantity`, { valueAsNumber: true })}
@@ -292,14 +292,14 @@ export default function NewContractPage() {
                   <div className="flex flex-col items-end justify-between self-stretch pt-6">
                     <div className="text-right mb-2">
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Sub-total</p>
-                      <p className="text-sm font-semibold text-slate-900">${subTotal.toFixed(2)}</p>
+                      <p className="text-sm font-semibold text-slate-900">R$ {subTotal.toFixed(2).replace('.', ',')}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => remove(index)}
                       disabled={fields.length === 1}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-                      title="Remove item"
+                      title="Remover item"
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
@@ -315,7 +315,7 @@ export default function NewContractPage() {
             href="/contracts"
             className="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             type="submit"
@@ -325,12 +325,12 @@ export default function NewContractPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save Contract
+                Salvar Contrato
               </>
             )}
           </button>

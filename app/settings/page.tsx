@@ -33,8 +33,8 @@ export default function SettingsPage() {
       <header className="mb-8 flex items-center gap-3">
         <Settings className="h-8 w-8 text-slate-700" />
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-          <p className="mt-2 text-slate-600">Manage application configuration and preferences.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Configurações</h1>
+          <p className="mt-2 text-slate-600">Gerencie a configuração e preferências do aplicativo.</p>
         </div>
       </header>
 
@@ -43,15 +43,15 @@ export default function SettingsPage() {
           <nav className="space-y-1">
             <a href="#" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 group flex items-center px-3 py-2 text-sm font-medium rounded-md">
               <Settings className="text-emerald-500 flex-shrink-0 -ml-1 mr-3 h-5 w-5" />
-              <span className="truncate">General</span>
+              <span className="truncate">Geral</span>
             </a>
             <a href="#" className="text-slate-900 hover:bg-slate-50 hover:text-slate-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md">
               <Database className="text-slate-400 group-hover:text-slate-500 flex-shrink-0 -ml-1 mr-3 h-5 w-5" />
-              <span className="truncate">Database</span>
+              <span className="truncate">Banco de Dados</span>
             </a>
             <a href="#" className="text-slate-900 hover:bg-slate-50 hover:text-slate-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md">
               <Shield className="text-slate-400 group-hover:text-slate-500 flex-shrink-0 -ml-1 mr-3 h-5 w-5" />
-              <span className="truncate">Security</span>
+              <span className="truncate">Segurança</span>
             </a>
           </nav>
         </div>
@@ -60,14 +60,14 @@ export default function SettingsPage() {
           <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
             <div className="p-6 space-y-6">
               <div>
-                <h2 className="text-lg font-medium leading-6 text-slate-900">General Settings</h2>
-                <p className="mt-1 text-sm text-slate-500">Update your basic system configuration.</p>
+                <h2 className="text-lg font-medium leading-6 text-slate-900">Configurações Gerais</h2>
+                <p className="mt-1 text-sm text-slate-500">Atualize a configuração básica do sistema.</p>
               </div>
 
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label htmlFor="systemName" className="block text-sm font-medium text-slate-700">
-                    System Name
+                    Nome do Sistema
                   </label>
                   <input
                     type="text"
@@ -81,7 +81,7 @@ export default function SettingsPage() {
 
                 <div>
                   <label htmlFor="lowInventoryThreshold" className="block text-sm font-medium text-slate-700">
-                    Low Inventory Alert Threshold
+                    Limite de Alerta de Estoque Baixo
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
@@ -93,10 +93,10 @@ export default function SettingsPage() {
                       className="block w-full rounded-none rounded-l-md border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
                     />
                     <span className="inline-flex items-center rounded-r-md border border-l-0 border-slate-300 bg-slate-50 px-3 text-slate-500 sm:text-sm">
-                      units
+                      unidades
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-slate-500">Alerts will be shown when inventory falls below this number.</p>
+                  <p className="mt-2 text-sm text-slate-500">Alertas serão mostrados quando o estoque cair abaixo deste número.</p>
                 </div>
 
                 <div className="flex items-start">
@@ -112,9 +112,9 @@ export default function SettingsPage() {
                   </div>
                   <div className="ml-3 text-sm">
                     <label htmlFor="enableEmailNotifications" className="font-medium text-slate-700">
-                      Email Notifications
+                      Notificações por E-mail
                     </label>
-                    <p className="text-slate-500">Receive alerts for low inventory and new orders.</p>
+                    <p className="text-slate-500">Receba alertas de estoque baixo e novos pedidos.</p>
                   </div>
                 </div>
               </div>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
               {success && (
                 <span className="text-sm text-emerald-600 flex items-center">
                   <CheckCircle2 className="h-4 w-4 mr-1" />
-                  Settings saved
+                  Configurações salvas
                 </span>
               )}
               <button
@@ -135,12 +135,12 @@ export default function SettingsPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
+                    Salvando...
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    Salvar Alterações
                   </>
                 )}
               </button>

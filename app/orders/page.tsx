@@ -40,11 +40,11 @@ export default function OrdersPage() {
         );
       } else {
         const errorData = await res.json();
-        alert(errorData.error || 'Failed to update status');
+        alert(errorData.error || 'Falha ao atualizar o status');
       }
     } catch (err) {
       console.error('Failed to update status', err);
-      alert('Failed to update status');
+      alert('Falha ao atualizar o status');
     }
   };
 
@@ -54,21 +54,21 @@ export default function OrdersPage() {
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            Received
+            Recebido
           </span>
         );
       case 'pending':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
             <Clock className="w-3 h-3 mr-1" />
-            Pending
+            Pendente
           </span>
         );
       case 'cancelled':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle className="w-3 h-3 mr-1" />
-            Cancelled
+            Cancelado
           </span>
         );
       default:
@@ -84,15 +84,15 @@ export default function OrdersPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Purchase Orders</h1>
-          <p className="mt-2 text-slate-600">Manage orders from suppliers to the Central Warehouse.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Pedidos de Compra</h1>
+          <p className="mt-2 text-slate-600">Gerencie pedidos de fornecedores para o Armazém Central.</p>
         </div>
         <Link
           href="/orders/new"
           className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors w-fit"
         >
           <Plus className="h-4 w-4 mr-2" />
-          New Order
+          Novo Pedido
         </Link>
       </header>
 
@@ -100,19 +100,19 @@ export default function OrdersPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-slate-500">
             <Loader2 className="h-8 w-8 animate-spin mr-3" />
-            Loading orders...
+            Carregando pedidos...
           </div>
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-500">
             <ShoppingCart className="h-12 w-12 text-slate-300 mb-4" />
-            <p className="text-lg font-medium text-slate-900">No orders found</p>
-            <p className="mt-1">Create your first purchase order to restock inventory.</p>
+            <p className="text-lg font-medium text-slate-900">Nenhum pedido encontrado</p>
+            <p className="mt-1">Crie seu primeiro pedido de compra para reabastecer o estoque.</p>
             <Link
               href="/orders/new"
               className="mt-6 flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Order
+              Criar Pedido
             </Link>
           </div>
         ) : (
@@ -120,12 +120,12 @@ export default function OrdersPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Order Number</th>
-                  <th className="px-6 py-4 font-medium">Type</th>
-                  <th className="px-6 py-4 font-medium">Supplier / Contract</th>
+                  <th className="px-6 py-4 font-medium">Número do Pedido</th>
+                  <th className="px-6 py-4 font-medium">Tipo</th>
+                  <th className="px-6 py-4 font-medium">Fornecedor / Contrato</th>
                   <th className="px-6 py-4 font-medium">Status</th>
-                  <th className="px-6 py-4 font-medium">Items</th>
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
+                  <th className="px-6 py-4 font-medium">Itens</th>
+                  <th className="px-6 py-4 font-medium text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -135,19 +135,19 @@ export default function OrdersPage() {
                       {order.orderNumber}
                     </td>
                     <td className="px-6 py-4 capitalize">
-                      {order.type}
+                      {order.type === 'contract' ? 'contrato' : 'avulso'}
                     </td>
                     <td className="px-6 py-4">
                       {order.type === 'contract' 
-                        ? (order.contract?.contractNumber || 'Unknown Contract')
-                        : (order.supplierName || 'Unknown Supplier')
+                        ? (order.contract?.contractNumber || 'Contrato Desconhecido')
+                        : (order.supplierName || 'Fornecedor Desconhecido')
                       }
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(order.status)}
                     </td>
                     <td className="px-6 py-4">
-                      {order.items?.length || 0} items
+                      {order.items?.length || 0} itens
                     </td>
                     <td className="px-6 py-4 text-right">
                       {order.status === 'pending' && (
@@ -156,13 +156,13 @@ export default function OrdersPage() {
                             onClick={() => handleUpdateStatus(order._id, 'received')}
                             className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
                           >
-                            Mark Received
+                            Marcar Recebido
                           </button>
                           <button
                             onClick={() => handleUpdateStatus(order._id, 'cancelled')}
                             className="text-red-600 hover:text-red-900 font-medium text-xs bg-red-50 px-2 py-1 rounded"
                           >
-                            Cancel
+                            Cancelar
                           </button>
                         </div>
                       )}

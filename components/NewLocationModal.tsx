@@ -7,9 +7,9 @@ import { z } from 'zod';
 import { X, Loader2, MapPin } from 'lucide-react';
 
 const locationSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'Nome é obrigatório'),
   type: z.enum(['central', 'dependency']),
-  city: z.string().min(1, 'City is required'),
+  city: z.string().min(1, 'Cidade é obrigatória'),
 });
 
 type LocationFormValues = z.infer<typeof locationSchema>;
@@ -52,7 +52,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create location');
+        throw new Error(errorData.error || 'Falha ao criar local');
       }
 
       reset();
@@ -70,7 +70,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center">
             <MapPin className="h-5 w-5 mr-2 text-emerald-600" />
-            New Location
+            Novo Local
           </h2>
           <button
             onClick={onClose}
@@ -88,33 +88,33 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nome</label>
             <input
               {...register('name')}
               className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="e.g. School A"
+              placeholder="ex: Escola A"
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
             <select
               {...register('type')}
               className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
             >
-              <option value="dependency">Dependency (School/Unit)</option>
-              <option value="central">Central Warehouse</option>
+              <option value="dependency">Dependência (Escola/Unidade)</option>
+              <option value="central">Armazém Central</option>
             </select>
             {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Cidade</label>
             <input
               {...register('city')}
               className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="e.g. New York"
+              placeholder="ex: São Paulo"
             />
             {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
           </div>
@@ -125,7 +125,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               type="submit"
@@ -133,7 +133,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
               className="flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Create Location
+              Criar Local
             </button>
           </div>
         </form>

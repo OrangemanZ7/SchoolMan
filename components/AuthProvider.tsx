@@ -86,11 +86,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (!authWindow) {
-        alert('Please allow popups for this site to connect your account.');
+        alert('Por favor, permita pop-ups para este site para conectar sua conta.');
       }
     } catch (error) {
       console.error('OAuth error:', error);
-      alert('Failed to initiate login. Please check your configuration.');
+      alert('Falha ao iniciar o login. Por favor, verifique sua configuração.');
     }
   };
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center">
           <Loader2 className="h-10 w-10 animate-spin text-emerald-600 mb-4" />
-          <p className="text-slate-500 font-medium">Verifying session...</p>
+          <p className="text-slate-500 font-medium">Verificando sessão...</p>
         </div>
       </div>
     );
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">EduSupply Chain</h1>
           <p className="text-slate-500 mb-8">
-            Sign in to manage public school supply chain, meal ingredients, and office supplies.
+            Faça login para gerenciar a cadeia de suprimentos das escolas públicas, ingredientes de alimentação e materiais de escritório.
           </p>
           
           <button
@@ -149,16 +149,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               />
               <path fill="none" d="M1 1h22v22H1z" />
             </svg>
-            Sign in with Google
+            Entrar com o Google
           </button>
           
           <div className="mt-8 text-xs text-slate-400 text-left bg-slate-50 p-4 rounded-lg">
-            <p className="font-semibold mb-1 text-slate-500">Setup Instructions:</p>
+            <p className="font-semibold mb-1 text-slate-500">Instruções de Configuração:</p>
             <ol className="list-decimal pl-4 space-y-1">
-              <li>Get Google OAuth credentials from Google Cloud Console</li>
-              <li>Add <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_ID</code> and <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_SECRET</code> to AI Studio Secrets</li>
-              <li>Add <code className="bg-slate-200 px-1 rounded">JWT_SECRET</code> to AI Studio Secrets</li>
-              <li>Configure the OAuth callback URL in Google Cloud:<br/>
+              <li>Obtenha as credenciais do Google OAuth no Google Cloud Console</li>
+              <li>Adicione <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_ID</code> e <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_SECRET</code> aos Segredos do AI Studio</li>
+              <li>Adicione <code className="bg-slate-200 px-1 rounded">JWT_SECRET</code> aos Segredos do AI Studio</li>
+              <li>Configure o URL de callback do OAuth no Google Cloud:<br/>
                 {origin && (
                   <code className="bg-slate-200 px-1 rounded break-all mt-1 inline-block">
                     {origin}/api/auth/callback

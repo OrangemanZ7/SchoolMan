@@ -15,23 +15,23 @@ const orderSchema = z.object({
   expectedDelivery: z.string().optional(),
   items: z.array(
     z.object({
-      product: z.string().min(1, 'Product is required'),
-      quantity: z.number().min(1, 'Quantity must be at least 1'),
-      pricePerUnit: z.number().min(0.01, 'Price must be greater than 0'),
+      product: z.string().min(1, 'Produto é obrigatório'),
+      quantity: z.number().min(1, 'A quantidade deve ser pelo menos 1'),
+      pricePerUnit: z.number().min(0.01, 'O preço deve ser maior que 0'),
     })
-  ).min(1, 'At least one item is required'),
+  ).min(1, 'Pelo menos um item é obrigatório'),
 }).superRefine((data, ctx) => {
   if (data.type === 'contract' && !data.contract) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Contract is required for contract orders',
+      message: 'Contrato é obrigatório para pedidos de contrato',
       path: ['contract'],
     });
   }
   if (data.type === 'inquiry' && !data.supplierName) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Supplier name is required for inquiry orders',
+      message: 'Nome do fornecedor é obrigatório para pedidos avulsos',
       path: ['supplierName'],
     });
   }
@@ -143,7 +143,7 @@ export default function NewOrderPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create order');
+        throw new Error(errorData.error || 'Falha ao criar pedido');
       }
 
       router.push('/orders');
@@ -160,10 +160,10 @@ export default function NewOrderPage() {
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <Link href="/orders">Back to Orders</Link>
+            <Link href="/orders">Voltar para Pedidos</Link>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">New Purchase Order</h1>
-          <p className="mt-2 text-slate-600">Create an order to restock the Central Warehouse.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Novo Pedido de Compra</h1>
+          <p className="mt-2 text-slate-600">Crie um pedido para reabastecer o Armazém Central.</p>
         </div>
       </header>
 
@@ -176,32 +176,32 @@ export default function NewOrderPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Order Details */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6">Order Details</h2>
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Detalhes do Pedido</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Order Type</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Pedido</label>
               <select
                 {...register('type')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               >
-                <option value="contract">Meal Contract</option>
-                <option value="inquiry">Office Supply Inquiry</option>
+                <option value="contract">Contrato de Alimentação</option>
+                <option value="inquiry">Pedido Avulso de Escritório</option>
               </select>
               {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>}
             </div>
 
             {selectedType === 'contract' ? (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Contract</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contrato</label>
                 <select
                   {...register('contract')}
                   className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   disabled={isLoadingContracts}
                 >
-                  <option value="">Select a contract...</option>
+                  <option value="">Selecione um contrato...</option>
                   {contracts.map((c) => (
                     <option key={c._id} value={c._id}>
-                      {c.contractNumber} - {c.supplier?.alias || 'Unknown Supplier'}
+                      {c.contractNumber} - {c.supplier?.alias || 'Fornecedor Desconhecido'}
                     </option>
                   ))}
                 </select>
@@ -209,18 +209,18 @@ export default function NewOrderPage() {
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Supplier Name</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Fornecedor</label>
                 <input
                   {...register('supplierName')}
                   className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="e.g. Office Depot"
+                  placeholder="ex: Kalunga"
                 />
                 {errors.supplierName && <p className="mt-1 text-sm text-red-600">{errors.supplierName.message}</p>}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Expected Delivery</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Entrega Prevista</label>
               <input
                 type="date"
                 {...register('expectedDelivery')}
@@ -234,14 +234,14 @@ export default function NewOrderPage() {
         {/* Order Items */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Order Items</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Itens do Pedido</h2>
             <button
               type="button"
               onClick={() => append({ product: '', quantity: 1, pricePerUnit: 0 })}
               className="flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
             >
               <Plus className="h-4 w-4 mr-1" />
-              Add Item
+              Adicionar Item
             </button>
           </div>
 
@@ -252,7 +252,7 @@ export default function NewOrderPage() {
           {isLoadingProducts ? (
             <div className="flex items-center justify-center py-8 text-slate-500">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              Loading products...
+              Carregando produtos...
             </div>
           ) : (
             <div className="space-y-4">
@@ -260,7 +260,7 @@ export default function NewOrderPage() {
                 <div key={field.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Product</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Produto</label>
                       <select
                         {...register(`items.${index}.product`)}
                         onChange={(e) => {
@@ -269,7 +269,7 @@ export default function NewOrderPage() {
                         }}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                       >
-                        <option value="">Select a product...</option>
+                        <option value="">Selecione um produto...</option>
                         {availableProducts.map((p: any) => (
                           <option key={p._id} value={p._id}>
                             {p.name} {p.brand ? `(${p.brand})` : ''} - {p.unit}
@@ -282,7 +282,7 @@ export default function NewOrderPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantity</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Quantidade</label>
                       <input
                         type="number"
                         {...register(`items.${index}.quantity`, { valueAsNumber: true })}
@@ -294,7 +294,7 @@ export default function NewOrderPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Price per Unit ($)</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Preço por Unidade (R$)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -313,7 +313,7 @@ export default function NewOrderPage() {
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
                     className="mt-6 p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-400"
-                    title="Remove item"
+                    title="Remover item"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
@@ -328,7 +328,7 @@ export default function NewOrderPage() {
             href="/orders"
             className="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             type="submit"
@@ -338,12 +338,12 @@ export default function NewOrderPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Create Order
+                Criar Pedido
               </>
             )}
           </button>

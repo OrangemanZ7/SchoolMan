@@ -29,14 +29,14 @@ export default function Dashboard() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-        <p className="mt-2 text-slate-600">Overview of the public school supply chain network.</p>
+        <h1 className="text-3xl font-bold text-slate-900">Painel</h1>
+        <p className="mt-2 text-slate-600">Visão geral da rede de suprimentos das escolas públicas.</p>
       </header>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12 text-slate-500">
           <Loader2 className="h-8 w-8 animate-spin mr-3" />
-          Loading dashboard...
+          Carregando painel...
         </div>
       ) : (
         <>
@@ -44,43 +44,43 @@ export default function Dashboard() {
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
               <div className="flex items-center text-slate-500 mb-4">
                 <FileText className="h-5 w-5 mr-2 text-indigo-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider">Active Contracts</h3>
+                <h3 className="text-sm font-medium uppercase tracking-wider">Contratos Ativos</h3>
               </div>
               <div>
                 <p className="text-3xl font-semibold text-slate-900">{stats?.activeContractsCount || 0}</p>
-                <p className="mt-1 text-sm text-slate-500">Meal supplies</p>
+                <p className="mt-1 text-sm text-slate-500">Suprimentos de alimentação</p>
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
               <div className="flex items-center text-slate-500 mb-4">
                 <ShoppingCart className="h-5 w-5 mr-2 text-amber-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider">Pending Orders</h3>
+                <h3 className="text-sm font-medium uppercase tracking-wider">Pedidos Pendentes</h3>
               </div>
               <div>
                 <p className="text-3xl font-semibold text-slate-900">{stats?.pendingOrdersCount || 0}</p>
-                <p className="mt-1 text-sm text-slate-500">Awaiting delivery</p>
+                <p className="mt-1 text-sm text-slate-500">Aguardando entrega</p>
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
               <div className="flex items-center text-slate-500 mb-4">
                 <Truck className="h-5 w-5 mr-2 text-blue-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider">Active Shipments</h3>
+                <h3 className="text-sm font-medium uppercase tracking-wider">Remessas Ativas</h3>
               </div>
               <div>
                 <p className="text-3xl font-semibold text-slate-900">{stats?.activeShipmentsCount || 0}</p>
-                <p className="mt-1 text-sm text-slate-500">In transit</p>
+                <p className="mt-1 text-sm text-slate-500">Em trânsito</p>
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
               <div className="flex items-center text-slate-500 mb-4">
                 <Database className="h-5 w-5 mr-2 text-emerald-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider">Database Status</h3>
+                <h3 className="text-sm font-medium uppercase tracking-wider">Status do Banco</h3>
               </div>
               <div>
-                <p className="text-2xl font-semibold text-emerald-600">Connected</p>
+                <p className="text-2xl font-semibold text-emerald-600">Conectado</p>
                 <p className="mt-1 text-sm text-slate-500">MongoDB Atlas</p>
               </div>
             </div>
@@ -89,9 +89,9 @@ export default function Dashboard() {
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-slate-900">Recent Shipments</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Remessas Recentes</h2>
                 <Link href="/shipments" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
-                  View all
+                  Ver todas
                 </Link>
               </div>
               
@@ -111,7 +111,7 @@ export default function Dashboard() {
                         shipment.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
                         'bg-amber-100 text-amber-800'
                       }`}>
-                        {shipment.status}
+                        {shipment.status === 'delivered' ? 'entregue' : shipment.status === 'shipped' ? 'enviado' : 'preparando'}
                       </span>
                     </div>
                   ))}
@@ -119,17 +119,17 @@ export default function Dashboard() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
                   <Truck className="h-8 w-8 text-slate-300 mb-3" />
-                  <p className="text-sm font-medium text-slate-900">No recent shipments</p>
-                  <p className="text-xs text-slate-500 mt-1">Shipments will appear here once created.</p>
+                  <p className="text-sm font-medium text-slate-900">Nenhuma remessa recente</p>
+                  <p className="text-xs text-slate-500 mt-1">As remessas aparecerão aqui assim que forem criadas.</p>
                 </div>
               )}
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-slate-900">Low Inventory Alerts</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Alertas de Estoque Baixo</h2>
                 <Link href="/inventory" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
-                  Manage inventory
+                  Gerenciar estoque
                 </Link>
               </div>
               
@@ -154,8 +154,8 @@ export default function Dashboard() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
                   <Package className="h-8 w-8 text-slate-300 mb-3" />
-                  <p className="text-sm font-medium text-slate-900">Inventory levels look good</p>
-                  <p className="text-xs text-slate-500 mt-1">No items are currently running low.</p>
+                  <p className="text-sm font-medium text-slate-900">Níveis de estoque estão bons</p>
+                  <p className="text-xs text-slate-500 mt-1">Nenhum item está com estoque baixo no momento.</p>
                 </div>
               )}
             </div>
