@@ -136,7 +136,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <header className="mb-8 flex items-center justify-between">
         <div>
           <div className="flex items-center text-sm text-slate-500 mb-2 hover:text-slate-900 transition-colors">

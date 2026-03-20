@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Package, 
@@ -11,7 +12,8 @@ import {
   Building2,
   Users,
   Settings,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
@@ -26,25 +28,38 @@ const navItems = [
   { name: 'Usuários', href: '/users', icon: Users },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-slate-900 text-white">
-      <div className="flex h-16 items-center justify-center border-b border-slate-800 px-4">
-        <h1 className="text-xl font-bold tracking-tight text-emerald-400">EduSupply Chain</h1>
+    <div className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl">
+      <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
+        <h1 className="text-xl font-bold tracking-tight text-emerald-400">EduSupply</h1>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white rounded-md transition-colors">
+            <X className="h-6 w-6" />
+          </button>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className="group flex items-center rounded-md px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors ${
+                  isActive 
+                    ? 'bg-emerald-600 text-white' 
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
               >
-                <Icon className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400 group-hover:text-emerald-400" />
+                <Icon className={`mr-3 h-5 w-5 flex-shrink-0 ${
+                  isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'
+                }`} />
                 {item.name}
               </Link>
             );

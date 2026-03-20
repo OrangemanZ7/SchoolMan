@@ -29,7 +29,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <header className="mb-8 flex items-center gap-3">
         <Settings className="h-8 w-8 text-slate-700" />
         <div>

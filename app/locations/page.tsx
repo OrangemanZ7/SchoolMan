@@ -29,7 +29,7 @@ export default function LocationsPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <header className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Locais</h1>

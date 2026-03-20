@@ -81,7 +81,7 @@ export default function ShipmentsPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Remessas</h1>

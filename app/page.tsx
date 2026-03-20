@@ -27,7 +27,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Painel</h1>
         <p className="mt-2 text-slate-600">Visão geral da rede de suprimentos das escolas públicas.</p>
