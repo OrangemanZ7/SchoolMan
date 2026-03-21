@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,17 +10,20 @@ const locationSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   type: z.enum(['central', 'dependency']),
   city: z.string().min(1, 'Cidade é obrigatória'),
+  email: z.string().email('E-mail inválido').optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')),
 });
 
 type LocationFormValues = z.infer<typeof locationSchema>;
 
-interface NewLocationModalProps {
+interface LocationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  location?: any; // If provided, we are in edit mode
 }
 
-export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLocationModalProps) {
+export default function LocationModal({ isOpen, onClose, onSuccess, location }: LocationModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,11 +35,27 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
   } = useForm<LocationFormValues>({
     resolver: zodResolver(locationSchema),
     defaultValues: {
-      name: '',
-      type: 'dependency',
-      city: '',
+      name: location?.name || '',
+      type: location?.type || 'dependency',
+      city: location?.city || '',
+      email: location?.email || '',
+      phone: location?.phone || '',
     },
   });
+
+  // Reset form when location changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        name: location?.name || '',
+        type: location?.type || 'dependency',
+        city: location?.city || '',
+        email: location?.email || '',
+        phone: location?.phone || '',
+      });
+      setError('');
+    }
+  }, [isOpen, location, reset]);
 
   if (!isOpen) return null;
 
@@ -44,15 +63,18 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
     setIsSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/api/locations', {
-        method: 'POST',
+      const url = location ? `/api/locations/${location._id}` : '/api/locations';
+      const method = location ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Falha ao criar local');
+        throw new Error(errorData.error || `Falha ao ${location ? 'atualizar' : 'criar'} local`);
       }
 
       reset();
@@ -70,7 +92,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center">
             <MapPin className="h-5 w-5 mr-2 text-emerald-600" />
-            Novo Local
+            {location ? 'Editar Local' : 'Novo Local'}
           </h2>
           <button
             onClick={onClose}
@@ -119,6 +141,27 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
             {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">E-mail (Opcional)</label>
+            <input
+              {...register('email')}
+              type="email"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="ex: contato@escola.com"
+            />
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Telefone (Opcional)</label>
+            <input
+              {...register('phone')}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="ex: (11) 99999-9999"
+            />
+            {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
+          </div>
+
           <div className="pt-4 flex justify-end gap-3">
             <button
               type="button"
@@ -133,7 +176,7 @@ export default function NewLocationModal({ isOpen, onClose, onSuccess }: NewLoca
               className="flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Criar Local
+              {location ? 'Salvar Alterações' : 'Criar Local'}
             </button>
           </div>
         </form>

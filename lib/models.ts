@@ -23,6 +23,8 @@ const LocationSchema = new Schema({
   name: { type: String, required: true },
   type: { type: String, enum: ['central', 'dependency'], required: true },
   city: { type: String, required: true },
+  email: { type: String },
+  phone: { type: String },
 }, { timestamps: true });
 
 export const Location = models.Location || model('Location', LocationSchema);

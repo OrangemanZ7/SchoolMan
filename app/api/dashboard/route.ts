@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import { Contract, Order, Shipment, Inventory } from '@/lib/models';
+import { Contract, Order, Shipment, Inventory, Location, Product } from '@/lib/models';
 
 export async function GET() {
   try {
@@ -16,8 +16,8 @@ export async function GET() {
       Contract.countDocuments({ status: 'active' }),
       Order.countDocuments({ status: 'pending' }),
       Shipment.countDocuments({ status: { $in: ['preparing', 'shipped'] } }),
-      Shipment.find().sort({ createdAt: -1 }).limit(5).populate('fromLocation').populate('toLocation'),
-      Inventory.find({ quantity: { $lt: 50 } }).populate('product').populate('location').limit(10)
+      Shipment.find().sort({ createdAt: -1 }).limit(5).populate('fromLocation').populate('toLocation').lean(),
+      Inventory.find({ quantity: { $lt: 50 } }).populate('product').populate('location').limit(10).lean()
     ]);
 
     return NextResponse.json({

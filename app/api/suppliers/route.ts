@@ -5,7 +5,17 @@ import { Supplier } from '@/lib/models';
 export async function GET() {
   try {
     await dbConnect();
-    const suppliers = await Supplier.find({}).sort({ alias: 1 });
+    const suppliers = await Supplier.aggregate([
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: 'supplier',
+          as: 'products'
+        }
+      },
+      { $sort: { alias: 1 } }
+    ]);
     return NextResponse.json(suppliers);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

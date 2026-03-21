@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
-import { Plus, ShoppingCart, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Plus, ShoppingCart, Loader2, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Package } from 'lucide-react';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -24,6 +25,10 @@ export default function OrdersPage() {
     }
     fetchOrders();
   }, []);
+
+  const toggleExpand = (id: string) => {
+    setExpandedOrderId(prev => prev === id ? null : id);
+  };
 
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
@@ -120,6 +125,7 @@ export default function OrdersPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
+                  <th className="px-6 py-4 font-medium w-10"></th>
                   <th className="px-6 py-4 font-medium">Número do Pedido</th>
                   <th className="px-6 py-4 font-medium">Tipo</th>
                   <th className="px-6 py-4 font-medium">Fornecedor / Contrato</th>
@@ -130,7 +136,20 @@ export default function OrdersPage() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {orders.map((order) => (
-                  <tr key={order._id} className="hover:bg-slate-50 transition-colors">
+                  <Fragment key={order._id}>
+                  <tr className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => toggleExpand(order._id)}
+                        className="p-1 rounded-md hover:bg-slate-200 text-slate-500 transition-colors"
+                      >
+                        {expandedOrderId === order._id ? (
+                          <ChevronUp className="h-5 w-5" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5" />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4 font-medium text-slate-900">
                       {order.orderNumber}
                     </td>
@@ -168,6 +187,47 @@ export default function OrdersPage() {
                       )}
                     </td>
                   </tr>
+                  {expandedOrderId === order._id && (
+                    <tr className="bg-slate-50">
+                      <td colSpan={7} className="px-6 py-4 border-b border-slate-200">
+                        <div className="pl-12 pr-4 py-2">
+                          <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center">
+                            <Package className="h-4 w-4 mr-2 text-slate-500" />
+                            Produtos do Pedido
+                          </h4>
+                          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                            <table className="w-full text-left text-sm text-slate-600">
+                              <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                                <tr>
+                                  <th className="px-4 py-3 font-medium">Produto</th>
+                                  <th className="px-4 py-3 font-medium">Marca</th>
+                                  <th className="px-4 py-3 font-medium">Categoria</th>
+                                  <th className="px-4 py-3 font-medium">Quantidade</th>
+                                  <th className="px-4 py-3 font-medium">Unidade</th>
+                                  <th className="px-4 py-3 font-medium">Preço/Unid</th>
+                                  <th className="px-4 py-3 font-medium">Total</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {order.items?.map((item: any, index: number) => (
+                                  <tr key={index} className="hover:bg-slate-50">
+                                    <td className="px-4 py-3 font-medium text-slate-900">{item.product?.name || 'Desconhecido'}</td>
+                                    <td className="px-4 py-3">{item.product?.brand || '-'}</td>
+                                    <td className="px-4 py-3 capitalize">{item.product?.category === 'meal' ? 'Alimentação' : item.product?.category === 'office' ? 'Escritório' : '-'}</td>
+                                    <td className="px-4 py-3">{item.quantity || 0}</td>
+                                    <td className="px-4 py-3">{item.product?.unit || '-'}</td>
+                                    <td className="px-4 py-3">R$ {item.pricePerUnit?.toFixed(2).replace('.', ',') || '0,00'}</td>
+                                    <td className="px-4 py-3 font-medium">R$ {((item.quantity || 0) * (item.pricePerUnit || 0)).toFixed(2).replace('.', ',')}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
