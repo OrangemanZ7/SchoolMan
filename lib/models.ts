@@ -99,6 +99,7 @@ const OrderSchema = new Schema({
   items: [{
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
     quantity: { type: Number, required: true },
+    receivedQuantity: { type: Number },
     pricePerUnit: { type: Number, required: true },
   }]
 }, { timestamps: true });
@@ -117,7 +118,18 @@ const ShipmentSchema = new Schema({
   items: [{
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
     quantity: { type: Number, required: true },
+    receivedQuantity: { type: Number },
   }]
 }, { timestamps: true });
+
+// --- Settings Schema ---
+// System configuration
+const SettingsSchema = new Schema({
+  systemName: { type: String, default: 'EduSupply Chain' },
+  lowInventoryThreshold: { type: Number, default: 50 },
+  enableEmailNotifications: { type: Boolean, default: true },
+}, { timestamps: true });
+
+export const Settings = models.Settings || model('Settings', SettingsSchema);
 
 export const Shipment = models.Shipment || model('Shipment', ShipmentSchema);

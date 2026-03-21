@@ -6,7 +6,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     await connectToDatabase();
-    const { status } = await request.json();
+    const { status, receivedItems } = await request.json();
 
     if (!status || !['pending', 'received', 'cancelled'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -25,13 +25,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         return NextResponse.json({ error: 'Central warehouse location not found' }, { status: 500 });
       }
 
-      // Update inventory for each item
+      // Update order items with received quantities and update inventory
       for (const item of order.items) {
-        await Inventory.findOneAndUpdate(
-          { location: centralLocation._id, product: item.product },
-          { $inc: { quantity: item.quantity } },
-          { upsert: true, new: true }
-        );
+        let qtyToReceive = item.quantity;
+        
+        if (receivedItems && Array.isArray(receivedItems)) {
+          const receivedItem = receivedItems.find((ri: any) => ri.itemId === item._id.toString());
+          if (receivedItem && typeof receivedItem.receivedQuantity === 'number') {
+            qtyToReceive = receivedItem.receivedQuantity;
+          }
+        }
+        
+        item.receivedQuantity = qtyToReceive;
+
+        if (qtyToReceive > 0) {
+          await Inventory.findOneAndUpdate(
+            { location: centralLocation._id, product: item.product },
+            { $inc: { quantity: qtyToReceive } },
+            { upsert: true, new: true }
+          );
+        }
       }
     }
 

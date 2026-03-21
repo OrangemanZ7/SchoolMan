@@ -1,31 +1,67 @@
 'use client';
 
 import { Settings, Save, Loader2, Database, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSettings } from '@/components/SettingsProvider';
 
 export default function SettingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [success, setSuccess] = useState(false);
+  const { refreshSettings } = useSettings();
 
-  // In a real app, these would be fetched from an API
   const [settings, setSettings] = useState({
     systemName: 'EduSupply Chain',
     lowInventoryThreshold: 50,
     enableEmailNotifications: true,
   });
 
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          setSettings({
+            systemName: data.systemName || 'EduSupply Chain',
+            lowInventoryThreshold: data.lowInventoryThreshold || 50,
+            enableEmailNotifications: data.enableEmailNotifications ?? true,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchSettings();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSuccess(false);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setSuccess(true);
-    
-    setTimeout(() => setSuccess(false), 3000);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+
+      if (res.ok) {
+        setSuccess(true);
+        refreshSettings();
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        alert('Falha ao salvar configurações');
+      }
+    } catch (error) {
+      console.error('Failed to update settings:', error);
+      alert('Falha ao salvar configurações');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -57,8 +93,14 @@ export default function SettingsPage() {
         </div>
 
         <div className="md:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-            <div className="p-6 space-y-6">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12 text-slate-500 bg-white shadow-sm rounded-xl border border-slate-200">
+              <Loader2 className="h-8 w-8 animate-spin mr-3" />
+              Carregando configurações...
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+              <div className="p-6 space-y-6">
               <div>
                 <h2 className="text-lg font-medium leading-6 text-slate-900">Configurações Gerais</h2>
                 <p className="mt-1 text-sm text-slate-500">Atualize a configuração básica do sistema.</p>
@@ -146,6 +188,7 @@ export default function SettingsPage() {
               </button>
             </div>
           </form>
+          )}
         </div>
       </div>
     </div>

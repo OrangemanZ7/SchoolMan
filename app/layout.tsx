@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import AppLayout from '@/components/AppLayout';
 import { AuthProvider } from '@/components/AuthProvider';
+import { SettingsProvider } from '@/components/SettingsProvider';
 
 export const metadata: Metadata = {
   title: 'EduSupply Chain',
@@ -26,9 +27,11 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="pt-BR">
       <body className="bg-slate-50 text-slate-900" suppressHydrationWarning>
         <AuthProvider>
-          <AppLayout>
-            {children}
-          </AppLayout>
+          <SettingsProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { useSettings } from './SettingsProvider';
 
 const navItems = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
@@ -30,12 +31,13 @@ const navItems = [
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuth();
+  const { settings } = useSettings();
   const pathname = usePathname();
 
   return (
     <div className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl">
       <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
-        <h1 className="text-xl font-bold tracking-tight text-emerald-400">EduSupply</h1>
+        <h1 className="text-xl font-bold tracking-tight text-emerald-400">{settings.systemName || 'EduSupply'}</h1>
         {onClose && (
           <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white rounded-md transition-colors">
             <X className="h-6 w-6" />

@@ -3,11 +3,16 @@
 import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { Plus, ShoppingCart, Loader2, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import ReceiveConfirmationModal from '@/components/ReceiveConfirmationModal';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  
+  // State for Receive Modal
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
+  const [selectedOrderForReceive, setSelectedOrderForReceive] = useState<any | null>(null);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -30,12 +35,17 @@ export default function OrdersPage() {
     setExpandedOrderId(prev => prev === id ? null : id);
   };
 
-  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+  const handleUpdateStatus = async (orderId: string, newStatus: string, receivedItems?: any[]) => {
     try {
+      const payload: any = { status: newStatus };
+      if (receivedItems) {
+        payload.receivedItems = receivedItems;
+      }
+
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -50,6 +60,19 @@ export default function OrdersPage() {
     } catch (err) {
       console.error('Failed to update status', err);
       alert('Falha ao atualizar o status');
+    }
+  };
+
+  const handleOpenReceiveModal = (order: any) => {
+    setSelectedOrderForReceive(order);
+    setIsReceiveModalOpen(true);
+  };
+
+  const handleConfirmReceive = async (receivedItems: any[]) => {
+    if (selectedOrderForReceive) {
+      await handleUpdateStatus(selectedOrderForReceive._id, 'received', receivedItems);
+      setIsReceiveModalOpen(false);
+      setSelectedOrderForReceive(null);
     }
   };
 
@@ -172,7 +195,7 @@ export default function OrdersPage() {
                       {order.status === 'pending' && (
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleUpdateStatus(order._id, 'received')}
+                            onClick={() => handleOpenReceiveModal(order)}
                             className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
                           >
                             Marcar Recebido
@@ -202,7 +225,10 @@ export default function OrdersPage() {
                                   <th className="px-4 py-3 font-medium">Produto</th>
                                   <th className="px-4 py-3 font-medium">Marca</th>
                                   <th className="px-4 py-3 font-medium">Categoria</th>
-                                  <th className="px-4 py-3 font-medium">Quantidade</th>
+                                  <th className="px-4 py-3 font-medium">Qtd. Solicitada</th>
+                                  {order.status === 'received' && (
+                                    <th className="px-4 py-3 font-medium">Qtd. Recebida</th>
+                                  )}
                                   <th className="px-4 py-3 font-medium">Unidade</th>
                                   <th className="px-4 py-3 font-medium">Preço/Unid</th>
                                   <th className="px-4 py-3 font-medium">Total</th>
@@ -215,6 +241,9 @@ export default function OrdersPage() {
                                     <td className="px-4 py-3">{item.product?.brand || '-'}</td>
                                     <td className="px-4 py-3 capitalize">{item.product?.category === 'meal' ? 'Alimentação' : item.product?.category === 'office' ? 'Escritório' : '-'}</td>
                                     <td className="px-4 py-3">{item.quantity || 0}</td>
+                                    {order.status === 'received' && (
+                                      <td className="px-4 py-3 font-medium text-emerald-600">{item.receivedQuantity ?? item.quantity}</td>
+                                    )}
                                     <td className="px-4 py-3">{item.product?.unit || '-'}</td>
                                     <td className="px-4 py-3">R$ {item.pricePerUnit?.toFixed(2).replace('.', ',') || '0,00'}</td>
                                     <td className="px-4 py-3 font-medium">R$ {((item.quantity || 0) * (item.pricePerUnit || 0)).toFixed(2).replace('.', ',')}</td>
@@ -234,6 +263,19 @@ export default function OrdersPage() {
           </div>
         )}
       </div>
+
+      {selectedOrderForReceive && (
+        <ReceiveConfirmationModal
+          isOpen={isReceiveModalOpen}
+          onClose={() => {
+            setIsReceiveModalOpen(false);
+            setSelectedOrderForReceive(null);
+          }}
+          onConfirm={handleConfirmReceive}
+          items={selectedOrderForReceive.items}
+          title={`Receber Pedido: ${selectedOrderForReceive.orderNumber}`}
+        />
+      )}
     </div>
   );
 }

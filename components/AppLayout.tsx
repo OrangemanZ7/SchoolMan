@@ -5,11 +5,13 @@ import Sidebar from './Sidebar';
 import { Menu, UserCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import { useSettings } from './SettingsProvider';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
+  const { settings } = useSettings();
 
   // Handle resize events to show/hide sidebar based on screen size
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="lg:hidden text-lg font-bold text-emerald-600">EduSupply</div>
+            <div className="lg:hidden text-lg font-bold text-emerald-600">{settings.systemName || 'EduSupply'}</div>
           </div>
           
           {user && (

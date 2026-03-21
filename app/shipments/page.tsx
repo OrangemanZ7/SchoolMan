@@ -3,11 +3,16 @@
 import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { Plus, Truck, Loader2, CheckCircle2, Clock, MapPin, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import ReceiveConfirmationModal from '@/components/ReceiveConfirmationModal';
 
 export default function ShipmentsPage() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedShipmentId, setExpandedShipmentId] = useState<string | null>(null);
+
+  // State for Receive Modal
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
+  const [selectedShipmentForReceive, setSelectedShipmentForReceive] = useState<any | null>(null);
 
   useEffect(() => {
     async function fetchShipments() {
@@ -30,12 +35,17 @@ export default function ShipmentsPage() {
     setExpandedShipmentId(prev => prev === id ? null : id);
   };
 
-  const handleUpdateStatus = async (shipmentId: string, newStatus: string) => {
+  const handleUpdateStatus = async (shipmentId: string, newStatus: string, receivedItems?: any[]) => {
     try {
+      const payload: any = { status: newStatus };
+      if (receivedItems) {
+        payload.receivedItems = receivedItems;
+      }
+
       const res = await fetch(`/api/shipments/${shipmentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -50,6 +60,19 @@ export default function ShipmentsPage() {
     } catch (err) {
       console.error('Failed to update status', err);
       alert('Falha ao atualizar o status');
+    }
+  };
+
+  const handleOpenReceiveModal = (shipment: any) => {
+    setSelectedShipmentForReceive(shipment);
+    setIsReceiveModalOpen(true);
+  };
+
+  const handleConfirmReceive = async (receivedItems: any[]) => {
+    if (selectedShipmentForReceive) {
+      await handleUpdateStatus(selectedShipmentForReceive._id, 'delivered', receivedItems);
+      setIsReceiveModalOpen(false);
+      setSelectedShipmentForReceive(null);
     }
   };
 
@@ -183,7 +206,7 @@ export default function ShipmentsPage() {
                         )}
                         {shipment.status === 'shipped' && (
                           <button
-                            onClick={() => handleUpdateStatus(shipment._id, 'delivered')}
+                            onClick={() => handleOpenReceiveModal(shipment)}
                             className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
                           >
                             Marcar Entregue
@@ -207,7 +230,10 @@ export default function ShipmentsPage() {
                                   <th className="px-4 py-3 font-medium">Produto</th>
                                   <th className="px-4 py-3 font-medium">Marca</th>
                                   <th className="px-4 py-3 font-medium">Categoria</th>
-                                  <th className="px-4 py-3 font-medium">Quantidade</th>
+                                  <th className="px-4 py-3 font-medium">Qtd. Enviada</th>
+                                  {shipment.status === 'delivered' && (
+                                    <th className="px-4 py-3 font-medium">Qtd. Recebida</th>
+                                  )}
                                   <th className="px-4 py-3 font-medium">Unidade</th>
                                 </tr>
                               </thead>
@@ -218,6 +244,9 @@ export default function ShipmentsPage() {
                                     <td className="px-4 py-3">{item.product?.brand || '-'}</td>
                                     <td className="px-4 py-3 capitalize">{item.product?.category === 'meal' ? 'Alimentação' : item.product?.category === 'office' ? 'Escritório' : '-'}</td>
                                     <td className="px-4 py-3">{item.quantity || 0}</td>
+                                    {shipment.status === 'delivered' && (
+                                      <td className="px-4 py-3 font-medium text-emerald-600">{item.receivedQuantity ?? item.quantity}</td>
+                                    )}
                                     <td className="px-4 py-3">{item.product?.unit || '-'}</td>
                                   </tr>
                                 ))}
@@ -235,6 +264,19 @@ export default function ShipmentsPage() {
           </div>
         )}
       </div>
+
+      {selectedShipmentForReceive && (
+        <ReceiveConfirmationModal
+          isOpen={isReceiveModalOpen}
+          onClose={() => {
+            setIsReceiveModalOpen(false);
+            setSelectedShipmentForReceive(null);
+          }}
+          onConfirm={handleConfirmReceive}
+          items={selectedShipmentForReceive.items}
+          title={`Receber Remessa: ${selectedShipmentForReceive.shipmentNumber}`}
+        />
+      )}
     </div>
   );
 }

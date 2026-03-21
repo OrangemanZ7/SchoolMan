@@ -6,7 +6,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     await connectToDatabase();
-    const { status } = await request.json();
+    const { status, receivedItems } = await request.json();
 
     if (!status || !['preparing', 'shipped', 'delivered'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -21,13 +21,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (status === 'delivered' && shipment.status !== 'delivered') {
       shipment.deliveredAt = new Date();
       
-      // Update inventory for each item at the destination
+      // Update shipment items with received quantities and update inventory at the destination
       for (const item of shipment.items) {
-        await Inventory.findOneAndUpdate(
-          { location: shipment.toLocation, product: item.product },
-          { $inc: { quantity: item.quantity } },
-          { upsert: true, new: true }
-        );
+        let qtyToReceive = item.quantity;
+        
+        if (receivedItems && Array.isArray(receivedItems)) {
+          const receivedItem = receivedItems.find((ri: any) => ri.itemId === item._id.toString());
+          if (receivedItem && typeof receivedItem.receivedQuantity === 'number') {
+            qtyToReceive = receivedItem.receivedQuantity;
+          }
+        }
+        
+        item.receivedQuantity = qtyToReceive;
+
+        if (qtyToReceive > 0) {
+          await Inventory.findOneAndUpdate(
+            { location: shipment.toLocation, product: item.product },
+            { $inc: { quantity: qtyToReceive } },
+            { upsert: true, new: true }
+          );
+        }
       }
     } else if (status === 'shipped' && shipment.status === 'preparing') {
       shipment.shippedAt = new Date();
