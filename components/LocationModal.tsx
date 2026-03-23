@@ -12,6 +12,9 @@ const locationSchema = z.object({
   city: z.string().min(1, 'Cidade é obrigatória'),
   email: z.string().email('E-mail inválido').optional().or(z.literal('')),
   phone: z.string().optional().or(z.literal('')),
+  studentsCount: z.number().min(0).optional(),
+  teachersCount: z.number().min(0).optional(),
+  staffCount: z.number().min(0).optional(),
 });
 
 type LocationFormValues = z.infer<typeof locationSchema>;
@@ -31,6 +34,7 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<LocationFormValues>({
     resolver: zodResolver(locationSchema),
@@ -40,8 +44,13 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
       city: location?.city || '',
       email: location?.email || '',
       phone: location?.phone || '',
+      studentsCount: location?.studentsCount || 0,
+      teachersCount: location?.teachersCount || 0,
+      staffCount: location?.staffCount || 0,
     },
   });
+
+  const locationType = watch('type');
 
   // Reset form when location changes or modal opens
   useEffect(() => {
@@ -52,6 +61,9 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
         city: location?.city || '',
         email: location?.email || '',
         phone: location?.phone || '',
+        studentsCount: location?.studentsCount || 0,
+        teachersCount: location?.teachersCount || 0,
+        staffCount: location?.staffCount || 0,
       });
       setError('');
     }
@@ -161,6 +173,41 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
             />
             {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
           </div>
+
+          {locationType === 'dependency' && (
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Alunos</label>
+                <input
+                  type="number"
+                  {...register('studentsCount', { valueAsNumber: true })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="0"
+                />
+                {errors.studentsCount && <p className="mt-1 text-sm text-red-600">{errors.studentsCount.message}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Professores</label>
+                <input
+                  type="number"
+                  {...register('teachersCount', { valueAsNumber: true })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="0"
+                />
+                {errors.teachersCount && <p className="mt-1 text-sm text-red-600">{errors.teachersCount.message}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Funcionários</label>
+                <input
+                  type="number"
+                  {...register('staffCount', { valueAsNumber: true })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="0"
+                />
+                {errors.staffCount && <p className="mt-1 text-sm text-red-600">{errors.staffCount.message}</p>}
+              </div>
+            </div>
+          )}
 
           <div className="pt-4 flex justify-end gap-3">
             <button

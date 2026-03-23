@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Package, Loader2, MapPin, PackagePlus } from 'lucide-react';
+import { Package, Loader2, MapPin, PackagePlus, Edit } from 'lucide-react';
 import NewProductModal from '@/components/NewProductModal';
+import EditThresholdModal from '@/components/EditThresholdModal';
+import { useSettings } from '@/components/SettingsProvider';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);
@@ -10,6 +13,11 @@ export default function InventoryPage() {
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const { settings } = useSettings();
+  const { user } = useAuth();
+  
+  const canEditThreshold = user?.role === 'admin' || user?.role === 'manager';
 
   useEffect(() => {
     async function fetchLocations() {
@@ -26,24 +34,25 @@ export default function InventoryPage() {
     fetchLocations();
   }, []);
 
-  useEffect(() => {
-    async function fetchInventory() {
-      setIsLoading(true);
-      try {
-        const url = selectedLocation 
-          ? `/api/inventory?location=${selectedLocation}` 
-          : '/api/inventory';
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          setInventory(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch inventory', err);
-      } finally {
-        setIsLoading(false);
+  const fetchInventory = async () => {
+    setIsLoading(true);
+    try {
+      const url = selectedLocation 
+        ? `/api/inventory?location=${selectedLocation}` 
+        : '/api/inventory';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setInventory(data);
       }
+    } catch (err) {
+      console.error('Failed to fetch inventory', err);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchInventory();
   }, [selectedLocation]);
 
@@ -105,6 +114,7 @@ export default function InventoryPage() {
                   <th className="px-6 py-4 font-medium">Unidade</th>
                   <th className="px-6 py-4 font-medium">Local</th>
                   <th className="px-6 py-4 font-medium">Em Estoque</th>
+                  {canEditThreshold && <th className="px-6 py-4 font-medium text-right">Ações</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -130,13 +140,24 @@ export default function InventoryPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        item.quantity > 100 ? 'bg-emerald-100 text-emerald-800' :
+                        item.quantity > (item.product?.lowInventoryThreshold ?? settings.lowInventoryThreshold) ? 'bg-emerald-100 text-emerald-800' :
                         item.quantity > 0 ? 'bg-amber-100 text-amber-800' :
                         'bg-red-100 text-red-800'
                       }`}>
                         {item.quantity}
                       </span>
                     </td>
+                    {canEditThreshold && (
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => setEditingProduct(item.product)}
+                          className="text-slate-400 hover:text-emerald-600 transition-colors"
+                          title="Editar Alerta de Estoque"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -149,10 +170,18 @@ export default function InventoryPage() {
         isOpen={isProductModalOpen}
         onClose={() => setIsProductModalOpen(false)}
         onSuccess={() => {
-          // Creating a product doesn't directly add it to inventory (quantity is 0),
-          // but we can refresh the inventory just in case, or show a toast.
-          // For now, we just close the modal.
+          fetchInventory();
         }}
+      />
+
+      <EditThresholdModal
+        isOpen={!!editingProduct}
+        onClose={() => setEditingProduct(null)}
+        onSuccess={() => {
+          fetchInventory();
+        }}
+        product={editingProduct}
+        globalThreshold={settings.lowInventoryThreshold}
       />
     </div>
   );

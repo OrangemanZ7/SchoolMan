@@ -8,13 +8,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhoneNumber } from '@/lib/utils';
+import { useSettings } from '@/components/SettingsProvider';
 
 const userSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('Endereço de e-mail inválido'),
   employeeNumber: z.string().optional(),
   cellPhone: z.string().optional(),
-  role: z.enum(['admin', 'manager', 'purchaser', 'warehouse', 'dependency']),
+  role: z.string().min(1, 'Função é obrigatória'),
   location: z.string().optional(),
 }).refine((data) => {
   if ((data.role === 'warehouse' || data.role === 'dependency') && !data.location) {
@@ -30,6 +31,7 @@ type UserFormValues = z.infer<typeof userSchema>;
 
 export default function NewUserPage() {
   const router = useRouter();
+  const { settings } = useSettings();
   const [locations, setLocations] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -175,11 +177,9 @@ export default function NewUserPage() {
                 {...register('role')}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               >
-                <option value="admin">Administrador (Acesso Total)</option>
-                <option value="manager">Gerente (Aprova Pedidos)</option>
-                <option value="purchaser">Comprador (Cria Contratos/Pedidos)</option>
-                <option value="warehouse">Almoxarifado (Gerencia Estoque)</option>
-                <option value="dependency">Dependência (Solicita Itens)</option>
+                {settings.roles?.map(role => (
+                  <option key={role.id} value={role.id}>{role.name}</option>
+                ))}
               </select>
               {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>}
             </div>

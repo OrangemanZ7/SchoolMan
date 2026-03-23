@@ -10,9 +10,17 @@ export async function GET() {
     // Create default settings if none exist
     if (!settings) {
       settings = await Settings.create({
-        systemName: 'EduSupply Chain',
+        systemName: 'Prof. João Florentino',
         lowInventoryThreshold: 50,
         enableEmailNotifications: true,
+        rolePermissions: {},
+        roles: [
+          { id: 'admin', name: 'Administrador' },
+          { id: 'manager', name: 'Gerente' },
+          { id: 'purchaser', name: 'Comprador' },
+          { id: 'warehouse', name: 'Almoxarifado' },
+          { id: 'dependency', name: 'Dependência' }
+        ]
       });
     }
     

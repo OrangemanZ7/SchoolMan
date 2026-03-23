@@ -2,10 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+interface Role {
+  id: string;
+  name: string;
+}
+
 interface Settings {
   systemName: string;
   lowInventoryThreshold: number;
   enableEmailNotifications: boolean;
+  rolePermissions: Record<string, Record<string, { access: boolean; create: boolean; read: boolean; update: boolean; delete: boolean }>>;
+  roles: Role[];
 }
 
 interface SettingsContextType {
@@ -15,9 +22,17 @@ interface SettingsContextType {
 }
 
 const defaultSettings: Settings = {
-  systemName: 'EduSupply Chain',
+  systemName: 'Prof. João Florentino',
   lowInventoryThreshold: 50,
   enableEmailNotifications: true,
+  rolePermissions: {},
+  roles: [
+    { id: 'admin', name: 'Administrador' },
+    { id: 'manager', name: 'Gerente' },
+    { id: 'purchaser', name: 'Comprador' },
+    { id: 'warehouse', name: 'Almoxarifado' },
+    { id: 'dependency', name: 'Dependência' }
+  ],
 };
 
 const SettingsContext = createContext<SettingsContextType>({
@@ -36,9 +51,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setSettings({
-          systemName: data.systemName || 'EduSupply Chain',
+          systemName: data.systemName || 'Prof. João Florentino',
           lowInventoryThreshold: data.lowInventoryThreshold || 50,
           enableEmailNotifications: data.enableEmailNotifications ?? true,
+          rolePermissions: data.rolePermissions || {},
+          roles: data.roles || defaultSettings.roles,
         });
       }
     } catch (error) {

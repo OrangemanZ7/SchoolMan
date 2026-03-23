@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Users, Loader2, Shield, MapPin, Mail, Edit, Trash2, Phone, Hash } from 'lucide-react';
 import { formatPhoneNumber } from '@/lib/utils';
+import { useSettings } from '@/components/SettingsProvider';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const { settings } = useSettings();
 
   const fetchUsers = async () => {
     try {
@@ -148,11 +150,7 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleBadgeColor(user.role)}`}>
                         <Shield className="h-3 w-3 mr-1" />
-                        {user.role === 'admin' ? 'administrador' : 
-                         user.role === 'manager' ? 'gerente' :
-                         user.role === 'purchaser' ? 'comprador' :
-                         user.role === 'warehouse' ? 'almoxarifado' :
-                         user.role === 'dependency' ? 'dependência' : user.role}
+                        {settings.roles?.find(r => r.id === user.role)?.name || user.role}
                       </span>
                     </td>
                     <td className="px-6 py-4">

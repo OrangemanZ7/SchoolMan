@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
@@ -13,7 +14,8 @@ import {
   Users,
   Settings,
   LogOut,
-  X
+  X,
+  ClipboardList
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { useSettings } from './SettingsProvider';
@@ -21,6 +23,7 @@ import { useSettings } from './SettingsProvider';
 const navItems = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
   { name: 'Estoque', href: '/inventory', icon: Package },
+  { name: 'Consumo', href: '/consumption', icon: ClipboardList },
   { name: 'Contratos (Alimentação)', href: '/contracts', icon: FileSignature },
   { name: 'Pedidos de Compra', href: '/orders', icon: ShoppingCart },
   { name: 'Remessas', href: '/shipments', icon: Truck },
@@ -37,7 +40,23 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <div className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl">
       <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
-        <h1 className="text-xl font-bold tracking-tight text-emerald-400">{settings.systemName || 'EduSupply'}</h1>
+        <div className="flex items-center gap-3">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white">
+            <Image 
+              src="/logo.png" 
+              alt="Logo" 
+              fill 
+              className="object-cover"
+              onError={(e) => {
+                // Fallback if image is not uploaded yet
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+          <h1 className="text-sm font-bold tracking-tight text-emerald-400 leading-tight">
+            {settings.systemName || 'Prof. João Florentino'}
+          </h1>
+        </div>
         {onClose && (
           <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white rounded-md transition-colors">
             <X className="h-6 w-6" />

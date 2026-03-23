@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Loader2, ShieldCheck } from 'lucide-react';
 
 interface User {
@@ -118,10 +119,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50 p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center">
-          <div className="mx-auto w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="mx-auto w-24 h-24 relative mb-6">
+            <Image 
+              src="/logo.png" 
+              alt="Logo Prof. João Florentino" 
+              fill 
+              className="object-contain"
+              onError={(e) => {
+                // Fallback if image is not uploaded yet
+                (e.target as HTMLImageElement).style.display = 'none';
+                const parent = (e.target as HTMLImageElement).parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-full h-full bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>';
+                }
+              }}
+            />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">EduSupply Chain</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Prof. João Florentino</h1>
           <p className="text-slate-500 mb-8">
             Faça login para gerenciar a cadeia de suprimentos das escolas públicas, ingredientes de alimentação e materiais de escritório.
           </p>

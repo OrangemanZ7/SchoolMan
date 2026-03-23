@@ -71,7 +71,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="lg:hidden text-lg font-bold text-emerald-600">{settings.systemName || 'EduSupply'}</div>
+            <div className="lg:hidden text-lg font-bold text-emerald-600">{settings.systemName || 'Prof. João Florentino'}</div>
           </div>
           
           {user && (

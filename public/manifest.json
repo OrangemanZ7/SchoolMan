@@ -1,16 +1,16 @@
 {
-  "name": "EduSupply Chain",
-  "short_name": "EduSupply",
-  "description": "Public school supply chain management for meal ingredients and office supplies.",
+  "name": "Prof. João Florentino Silva Neto",
+  "short_name": "João Florentino",
+  "description": "Sistema de gestão de estoque da Escola Estadual Prof. João Florentino Silva Neto.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/logo.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

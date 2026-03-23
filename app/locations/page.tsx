@@ -110,6 +110,9 @@ export default function LocationsPage() {
                   <th className="px-6 py-4 font-medium">Tipo</th>
                   <th className="px-6 py-4 font-medium">Cidade</th>
                   <th className="px-6 py-4 font-medium">Informações de Contato</th>
+                  <th className="px-6 py-4 font-medium text-center">Alunos</th>
+                  <th className="px-6 py-4 font-medium text-center">Professores</th>
+                  <th className="px-6 py-4 font-medium text-center">Funcionários</th>
                   {isAdmin && <th className="px-6 py-4 font-medium text-right">Ações</th>}
                 </tr>
               </thead>
@@ -157,6 +160,15 @@ export default function LocationsPage() {
                           <span className="text-slate-400">-</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-center font-medium text-slate-700">
+                      {location.studentsCount || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center font-medium text-slate-700">
+                      {location.teachersCount || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center font-medium text-slate-700">
+                      {location.staffCount || 0}
                     </td>
                     {isAdmin && (
                       <td className="px-6 py-4 text-right">

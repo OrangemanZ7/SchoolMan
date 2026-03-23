@@ -12,6 +12,7 @@ const productSchema = z.object({
   category: z.enum(['meal', 'office']),
   unit: z.string().min(1, 'Unidade é obrigatória'),
   description: z.string().optional(),
+  lowInventoryThreshold: z.number().min(0, 'O limite deve ser maior ou igual a 0').optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -40,6 +41,7 @@ export default function NewProductModal({ isOpen, onClose, onSuccess, defaultCat
       category: defaultCategory,
       unit: 'kg',
       description: '',
+      lowInventoryThreshold: undefined,
     },
   });
 
@@ -138,6 +140,17 @@ export default function NewProductModal({ isOpen, onClose, onSuccess, defaultCat
               </select>
               {errors.unit && <p className="mt-1 text-sm text-red-600">{errors.unit.message}</p>}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Alerta de Estoque Baixo (Opcional)</label>
+            <input
+              type="number"
+              {...register('lowInventoryThreshold', { valueAsNumber: true })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Ex: 50 (Usa o padrão se vazio)"
+            />
+            {errors.lowInventoryThreshold && <p className="mt-1 text-sm text-red-600">{errors.lowInventoryThreshold.message}</p>}
           </div>
 
           <div>

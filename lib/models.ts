@@ -9,7 +9,6 @@ const UserSchema = new Schema({
   cellPhone: { type: String },
   role: { 
     type: String, 
-    enum: ['admin', 'manager', 'purchaser', 'warehouse', 'dependency'], 
     default: 'dependency' 
   },
   location: { type: Schema.Types.ObjectId, ref: 'Location' }, // For 'warehouse' or 'dependency' roles
@@ -25,6 +24,9 @@ const LocationSchema = new Schema({
   city: { type: String, required: true },
   email: { type: String },
   phone: { type: String },
+  studentsCount: { type: Number, default: 0 },
+  teachersCount: { type: Number, default: 0 },
+  staffCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
 export const Location = models.Location || model('Location', LocationSchema);
@@ -52,6 +54,7 @@ const ProductSchema = new Schema({
   description: { type: String },
   supplier: { type: Schema.Types.ObjectId, ref: 'Supplier' },
   contract: { type: Schema.Types.ObjectId, ref: 'Contract' },
+  lowInventoryThreshold: { type: Number }, // Product-specific threshold
 }, { timestamps: true });
 
 export const Product = models.Product || model('Product', ProductSchema);
@@ -122,12 +125,35 @@ const ShipmentSchema = new Schema({
   }]
 }, { timestamps: true });
 
+// --- Consumption Schema ---
+// Tracks the consumption of products at a specific location
+const ConsumptionSchema = new Schema({
+  location: { type: Schema.Types.ObjectId, ref: 'Location', required: true },
+  product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+  quantity: { type: Number, required: true },
+  consumedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  notes: { type: String },
+}, { timestamps: true });
+
+export const Consumption = models.Consumption || model('Consumption', ConsumptionSchema);
+
 // --- Settings Schema ---
 // System configuration
 const SettingsSchema = new Schema({
-  systemName: { type: String, default: 'EduSupply Chain' },
+  systemName: { type: String, default: 'Prof. João Florentino' },
   lowInventoryThreshold: { type: Number, default: 50 },
   enableEmailNotifications: { type: Boolean, default: true },
+  rolePermissions: { type: Schema.Types.Mixed, default: {} },
+  roles: { 
+    type: [{ id: String, name: String }], 
+    default: [
+      { id: 'admin', name: 'Administrador' },
+      { id: 'manager', name: 'Gerente' },
+      { id: 'purchaser', name: 'Comprador' },
+      { id: 'warehouse', name: 'Almoxarifado' },
+      { id: 'dependency', name: 'Dependência' }
+    ] 
+  }
 }, { timestamps: true });
 
 export const Settings = models.Settings || model('Settings', SettingsSchema);

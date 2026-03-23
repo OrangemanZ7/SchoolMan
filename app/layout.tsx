@@ -5,13 +5,17 @@ import { AuthProvider } from '@/components/AuthProvider';
 import { SettingsProvider } from '@/components/SettingsProvider';
 
 export const metadata: Metadata = {
-  title: 'EduSupply Chain',
-  description: 'Public school supply chain management for meal ingredients and office supplies.',
+  title: 'Prof. João Florentino Silva Neto',
+  description: 'Sistema de gestão de estoque da Escola Estadual Prof. João Florentino Silva Neto.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'EduSupply',
+    title: 'João Florentino',
   },
 };
 
