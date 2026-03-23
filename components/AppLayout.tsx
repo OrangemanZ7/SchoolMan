@@ -50,7 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <div 
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-slate-900 transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-slate-900 transition-transform duration-300 ease-in-out print:hidden ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:relative lg:translate-x-0 lg:flex-shrink-0 ${
           !isSidebarOpen && 'lg:hidden' // Hide on desktop if toggled off
@@ -62,7 +62,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header with hamburger */}
-        <header className="flex items-center justify-between bg-white border-b border-slate-200 h-16 px-4 shrink-0 lg:px-8 shadow-sm z-10">
+        <header className="flex items-center justify-between bg-white border-b border-slate-200 h-16 px-4 shrink-0 lg:px-8 shadow-sm z-10 print:hidden">
           <div className="flex items-center">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 

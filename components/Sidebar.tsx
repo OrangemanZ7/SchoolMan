@@ -15,13 +15,15 @@ import {
   Settings,
   LogOut,
   X,
-  ClipboardList
+  ClipboardList,
+  Utensils
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { useSettings } from './SettingsProvider';
 
 const navItems = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
+  { name: 'Cardápios', href: '/recipes', icon: Utensils },
   { name: 'Estoque', href: '/inventory', icon: Package },
   { name: 'Consumo', href: '/consumption', icon: ClipboardList },
   { name: 'Contratos (Alimentação)', href: '/contracts', icon: FileSignature },

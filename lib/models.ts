@@ -137,6 +137,19 @@ const ConsumptionSchema = new Schema({
 
 export const Consumption = models.Consumption || model('Consumption', ConsumptionSchema);
 
+// --- Recipe Schema ---
+// Cooking recipes (Cardápios)
+const RecipeSchema = new Schema({
+  name: { type: String, required: true },
+  description: { type: String },
+  ingredients: [{
+    product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    quantityPerMeal: { type: Number, required: true }, // Quantity of the product needed for 1 meal
+  }],
+}, { timestamps: true });
+
+export const Recipe = models.Recipe || model('Recipe', RecipeSchema);
+
 // --- Settings Schema ---
 // System configuration
 const SettingsSchema = new Schema({
