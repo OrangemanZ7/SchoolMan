@@ -1,20 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ClipboardList, Loader2, MapPin, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ClipboardList, Loader2, MapPin, Plus, Trash2, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
-import NewConsumptionModal from '@/components/NewConsumptionModal';
+import Link from 'next/link';
 
 export default function ConsumptionPage() {
   const [consumptions, setConsumptions] = useState<any[]>([]);
   const [locations, setLocations] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const { user } = useAuth();
 
   // If user is dependency or warehouse, they can only see/consume from their location
   const isRestrictedUser = user?.role === 'dependency' || user?.role === 'warehouse';
+  const canDelete = user?.role === 'admin' || user?.role === 'manager';
 
   useEffect(() => {
     async function fetchLocations() {
@@ -72,6 +74,64 @@ export default function ConsumptionPage() {
     });
   };
 
+  const groupedConsumptions = consumptions.reduce((acc, current) => {
+    // Group by batchId if available, otherwise fallback to grouping by exact createdAt timestamp + location + user
+    const groupId = current.batchId || `${current.createdAt}_${current.location?._id}_${current.consumedBy?._id}`;
+    
+    if (!acc[groupId]) {
+      acc[groupId] = {
+        id: groupId,
+        batchId: current.batchId,
+        createdAt: current.createdAt,
+        location: current.location,
+        consumedBy: current.consumedBy,
+        notes: current.notes,
+        items: []
+      };
+    } else if (!acc[groupId].notes && current.notes) {
+      acc[groupId].notes = current.notes;
+    }
+    
+    acc[groupId].items.push(current);
+    return acc;
+  }, {} as Record<string, any>);
+
+  const sortedGroups = Object.values(groupedConsumptions).sort((a: any, b: any) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este registro de consumo? A quantidade será devolvida ao estoque.')) {
+      return;
+    }
+
+    setIsDeleting(id);
+    try {
+      const res = await fetch(`/api/consumption/batch/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        fetchConsumptions();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Falha ao excluir o registro de consumo');
+      }
+    } catch (err) {
+      console.error('Failed to delete consumption', err);
+      alert('Erro ao excluir o registro de consumo');
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -99,14 +159,13 @@ export default function ConsumptionPage() {
             </div>
           )}
           
-          <button
-            onClick={() => setIsModalOpen(true)}
-            disabled={!selectedLocation && isRestrictedUser}
-            className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          <Link
+            href="/consumption/new"
+            className={`flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors text-sm ${(!selectedLocation && isRestrictedUser) ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <Plus className="h-4 w-4 mr-2" />
             Registrar Consumo
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -116,7 +175,7 @@ export default function ConsumptionPage() {
             <Loader2 className="h-8 w-8 animate-spin mr-3" />
             Carregando registros...
           </div>
-        ) : consumptions.length === 0 ? (
+        ) : sortedGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-500">
             <ClipboardList className="h-12 w-12 text-slate-300 mb-4" />
             <p className="text-lg font-medium text-slate-900">Nenhum consumo registrado</p>
@@ -128,51 +187,111 @@ export default function ConsumptionPage() {
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 font-medium">Data/Hora</th>
-                  <th className="px-6 py-4 font-medium">Produto</th>
-                  <th className="px-6 py-4 font-medium">Quantidade</th>
                   <th className="px-6 py-4 font-medium">Local</th>
                   <th className="px-6 py-4 font-medium">Registrado por</th>
-                  <th className="px-6 py-4 font-medium">Observações</th>
+                  <th className="px-6 py-4 font-medium">Total de Itens</th>
+                  <th className="px-6 py-4 font-medium text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {consumptions.map((item) => (
-                  <tr key={item._id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {formatDate(item.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-slate-900">
-                      {item.product?.name || 'Produto Desconhecido'}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-emerald-600">
-                      -{item.quantity} {item.product?.unit || ''}
-                    </td>
-                    <td className="px-6 py-4">
-                      {item.location?.name || 'Local Desconhecido'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {item.consumedBy?.name || 'Usuário Desconhecido'}
-                    </td>
-                    <td className="px-6 py-4 text-slate-500 max-w-xs truncate" title={item.notes}>
-                      {item.notes || '-'}
-                    </td>
-                  </tr>
+                {sortedGroups.map((group: any) => (
+                  <React.Fragment key={group.id}>
+                    <tr className={`hover:bg-slate-50 transition-colors ${expandedGroups[group.id] ? 'bg-slate-50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {formatDate(group.createdAt)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {group.location?.name || 'Local Desconhecido'}
+                      </td>
+                      <td className="px-6 py-4">
+                        {group.consumedBy?.name || 'Usuário Desconhecido'}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        {group.items.length} {group.items.length === 1 ? 'item' : 'itens'}
+                      </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => toggleGroup(group.id)}
+                            className="text-slate-400 hover:text-emerald-600 transition-colors p-1"
+                            title={expandedGroups[group.id] ? "Recolher detalhes" : "Ver detalhes"}
+                          >
+                            {expandedGroups[group.id] ? (
+                              <ChevronUp className="h-5 w-5" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5" />
+                            )}
+                          </button>
+                          {canDelete && (
+                            <>
+                              <Link
+                                href={`/consumption/${group.id}/edit`}
+                                className={`text-slate-400 hover:text-emerald-600 transition-colors p-1 ${isDeleting === group.id ? 'opacity-50 pointer-events-none' : ''}`}
+                                title="Editar registro"
+                              >
+                                <Pencil className="h-5 w-5" />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(group.id)}
+                                disabled={isDeleting === group.id}
+                                className="text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50 p-1"
+                                title="Excluir registro e devolver ao estoque"
+                              >
+                                {isDeleting === group.id ? (
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-5 w-5" />
+                                )}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {expandedGroups[group.id] && (
+                      <tr className="bg-slate-50/50">
+                        <td colSpan={5} className="px-6 py-4">
+                          <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                            <table className="w-full text-left text-sm text-slate-600">
+                              <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                                <tr>
+                                  <th className="px-4 py-3 font-medium">Produto</th>
+                                  <th className="px-4 py-3 font-medium">Quantidade</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {group.items.map((item: any) => (
+                                  <tr key={item._id} className="hover:bg-slate-50/50">
+                                    <td className="px-4 py-3 font-medium text-slate-900">
+                                      {item.product?.name || 'Produto Desconhecido'}
+                                      {item.notes && item.notes !== group.notes && (
+                                        <div className="text-xs text-slate-500 mt-1 font-normal">{item.notes}</div>
+                                      )}
+                                    </td>
+                                    <td className="px-4 py-3 font-medium text-emerald-600">
+                                      -{item.quantity} {item.product?.unit || ''}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            {group.notes && (
+                              <div className="p-4 border-t border-slate-200 bg-slate-50">
+                                <h4 className="text-xs font-semibold text-slate-500 uppercase mb-1">Observações</h4>
+                                <p className="text-sm text-slate-700">{group.notes}</p>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
-
-      {isModalOpen && user && (
-        <NewConsumptionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={fetchConsumptions}
-          locationId={selectedLocation || user.location || ''}
-          userId={user.id}
-        />
-      )}
     </div>
   );
 }

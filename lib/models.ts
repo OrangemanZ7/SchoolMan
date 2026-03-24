@@ -133,6 +133,7 @@ const ConsumptionSchema = new Schema({
   quantity: { type: Number, required: true },
   consumedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   notes: { type: String },
+  batchId: { type: String }, // To group multiple items consumed together
 }, { timestamps: true });
 
 export const Consumption = models.Consumption || model('Consumption', ConsumptionSchema);

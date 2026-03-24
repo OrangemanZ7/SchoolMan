@@ -53,7 +53,7 @@ export default function RecipesPage() {
     try {
       const [recipesRes, productsRes] = await Promise.all([
         fetch('/api/recipes'),
-        fetch('/api/products?category=Alimentação') // Assuming we only want food products
+        fetch('/api/products?category=meal') // Assuming we only want food products
       ]);
       
       if (recipesRes.ok && productsRes.ok) {
@@ -446,7 +446,7 @@ export default function RecipesPage() {
                     ))}
                     {formData.ingredients.length === 0 && (
                       <p className="text-sm text-slate-500 text-center py-4">
-                        Nenhum ingrediente adicionado. Clique em "Adicionar Ingrediente".
+                        Nenhum ingrediente adicionado. Clique em &quot;Adicionar Ingrediente&quot;.
                       </p>
                     )}
                   </div>
