@@ -82,6 +82,7 @@ export default function ConsumptionPage() {
       acc[groupId] = {
         id: groupId,
         batchId: current.batchId,
+        code: current.code,
         createdAt: current.createdAt,
         location: current.location,
         consumedBy: current.consumedBy,
@@ -186,7 +187,7 @@ export default function ConsumptionPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Data/Hora</th>
+                  <th className="px-6 py-4 font-medium">Código</th>
                   <th className="px-6 py-4 font-medium">Local</th>
                   <th className="px-6 py-4 font-medium">Registrado por</th>
                   <th className="px-6 py-4 font-medium">Total de Itens</th>
@@ -197,8 +198,8 @@ export default function ConsumptionPage() {
                 {sortedGroups.map((group: any) => (
                   <React.Fragment key={group.id}>
                     <tr className={`hover:bg-slate-50 transition-colors ${expandedGroups[group.id] ? 'bg-slate-50' : ''}`}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {formatDate(group.createdAt)}
+                      <td className="px-6 py-4 whitespace-nowrap font-mono text-emerald-700 font-medium">
+                        {group.code || `CS-${new Date(group.createdAt).toISOString().split('T')[0]}-${group.location?.alias || group.location?.name?.substring(0, 2).toUpperCase() || 'XX'}`}
                       </td>
                       <td className="px-6 py-4">
                         {group.location?.name || 'Local Desconhecido'}

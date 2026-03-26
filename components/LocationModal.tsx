@@ -8,6 +8,7 @@ import { X, Loader2, MapPin } from 'lucide-react';
 
 const locationSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
+  alias: z.string().min(1, 'Código é obrigatório').max(2, 'Máximo 2 caracteres').toUpperCase(),
   type: z.enum(['central', 'dependency']),
   city: z.string().min(1, 'Cidade é obrigatória'),
   email: z.string().email('E-mail inválido').optional().or(z.literal('')),
@@ -40,6 +41,7 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
     resolver: zodResolver(locationSchema),
     defaultValues: {
       name: location?.name || '',
+      alias: location?.alias || '',
       type: location?.type || 'dependency',
       city: location?.city || '',
       email: location?.email || '',
@@ -57,6 +59,7 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
     if (isOpen) {
       reset({
         name: location?.name || '',
+        alias: location?.alias || '',
         type: location?.type || 'dependency',
         city: location?.city || '',
         email: location?.email || '',
@@ -129,6 +132,17 @@ export default function LocationModal({ isOpen, onClose, onSuccess, location }: 
               placeholder="ex: Escola A"
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Código (Alias)</label>
+            <input
+              {...register('alias')}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 uppercase"
+              placeholder="ex: PA"
+              maxLength={2}
+            />
+            {errors.alias && <p className="mt-1 text-sm text-red-600">{errors.alias.message}</p>}
           </div>
 
           <div>

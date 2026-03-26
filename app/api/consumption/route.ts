@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import { Consumption, Inventory } from '@/lib/models';
+import { Consumption, Inventory, Location } from '@/lib/models';
 
 export async function GET(request: Request) {
   try {
@@ -36,6 +36,16 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
       }
 
+      const locationDoc = await Location.findById(location);
+      if (!locationDoc) {
+        return NextResponse.json({ error: 'Local não encontrado' }, { status: 404 });
+      }
+      
+      const alias = locationDoc.alias || locationDoc.name.substring(0, 2).toUpperCase();
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const code = `CS-${dateStr}-${alias}`;
+
       // Validate all items first
       for (const item of items) {
         if (!item.product || !item.quantity || item.quantity <= 0) {
@@ -62,7 +72,8 @@ export async function POST(request: Request) {
           quantity: item.quantity,
           consumedBy,
           notes: notes || item.notes,
-          batchId
+          batchId,
+          code
         });
         consumptions.push(consumption);
       }
@@ -80,6 +91,16 @@ export async function POST(request: Request) {
     if (quantity <= 0) {
       return NextResponse.json({ error: 'A quantidade deve ser maior que zero' }, { status: 400 });
     }
+
+    const locationDoc = await Location.findById(location);
+    if (!locationDoc) {
+      return NextResponse.json({ error: 'Local não encontrado' }, { status: 404 });
+    }
+    
+    const alias = locationDoc.alias || locationDoc.name.substring(0, 2).toUpperCase();
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const code = `CS-${dateStr}-${alias}`;
 
     // Check inventory
     const inventoryItem = await Inventory.findOne({ location, product });
@@ -100,7 +121,8 @@ export async function POST(request: Request) {
       quantity,
       consumedBy,
       notes,
-      batchId
+      batchId,
+      code
     });
 
     return NextResponse.json(consumption, { status: 201 });

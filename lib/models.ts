@@ -20,6 +20,7 @@ export const User = models.User || model('User', UserSchema);
 // Represents the Central Warehouse or one of the 6 dependencies
 const LocationSchema = new Schema({
   name: { type: String, required: true },
+  alias: { type: String, maxlength: 2 }, // Short code for the location, e.g., PA
   type: { type: String, enum: ['central', 'dependency'], required: true },
   city: { type: String, required: true },
   email: { type: String },
@@ -134,6 +135,7 @@ const ConsumptionSchema = new Schema({
   consumedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   notes: { type: String },
   batchId: { type: String }, // To group multiple items consumed together
+  code: { type: String }, // e.g., CS-YYYY-MM-DD-XX
 }, { timestamps: true });
 
 export const Consumption = models.Consumption || model('Consumption', ConsumptionSchema);
