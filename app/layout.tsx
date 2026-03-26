@@ -5,8 +5,8 @@ import { AuthProvider } from '@/components/AuthProvider';
 import { SettingsProvider } from '@/components/SettingsProvider';
 
 export const metadata: Metadata = {
-  title: 'Prof. João Florentino Silva Neto',
-  description: 'Sistema de gestão de estoque da Escola Estadual Prof. João Florentino Silva Neto.',
+  title: 'MerendaPro',
+  description: 'Sistema de gestão de estoques.',
   manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'João Florentino',
+    title: 'MerendaPro',
+    startupImage: [
+      '/logo_lg.png',
+    ],
   },
 };
 

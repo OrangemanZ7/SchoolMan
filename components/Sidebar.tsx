@@ -48,6 +48,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
               src="/logo.png" 
               alt="Logo" 
               fill 
+              sizes="32px"
               className="object-cover"
               onError={(e) => {
                 // Fallback if image is not uploaded yet

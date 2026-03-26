@@ -121,9 +121,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center">
           <div className="mx-auto w-24 h-24 relative mb-6">
             <Image 
-              src="/logo.png" 
+              src="/logo_escola.png" 
               alt="Logo Prof. João Florentino" 
               fill 
+              sizes="96px"
               className="object-contain"
               onError={(e) => {
                 // Fallback if image is not uploaded yet
