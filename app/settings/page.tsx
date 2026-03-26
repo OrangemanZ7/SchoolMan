@@ -22,13 +22,16 @@ export default function SettingsPage() {
   const pages = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'inventory', label: 'Estoque' },
+    { id: 'consumption', label: 'Consumo' },
+    { id: 'recipes', label: 'Receitas' },
     { id: 'orders', label: 'Pedidos' },
     { id: 'shipments', label: 'Remessas' },
     { id: 'suppliers', label: 'Fornecedores' },
-    { id: 'users', label: 'Usuários' },
-    { id: 'settings', label: 'Configurações' },
     { id: 'contracts', label: 'Contratos' },
     { id: 'locations', label: 'Locais' },
+    { id: 'users', label: 'Usuários' },
+    { id: 'reports', label: 'Relatórios' },
+    { id: 'settings', label: 'Configurações' },
   ];
 
   const [settings, setSettings] = useState({

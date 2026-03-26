@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Package, Loader2, MapPin, PackagePlus, Edit } from 'lucide-react';
+import { Package, Loader2, MapPin, PackagePlus, Edit, Scale } from 'lucide-react';
 import NewProductModal from '@/components/NewProductModal';
 import EditThresholdModal from '@/components/EditThresholdModal';
+import AdjustInventoryModal from '@/components/AdjustInventoryModal';
 import { useSettings } from '@/components/SettingsProvider';
 import { useAuth } from '@/components/AuthProvider';
 
@@ -14,10 +15,12 @@ export default function InventoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [adjustingInventoryItem, setAdjustingInventoryItem] = useState<any>(null);
   const { settings } = useSettings();
   const { user } = useAuth();
   
   const canEditThreshold = user?.role === 'admin' || user?.role === 'manager';
+  const canAdjustInventory = user?.role === 'admin' || user?.role === 'manager';
 
   useEffect(() => {
     async function fetchLocations() {
@@ -114,7 +117,7 @@ export default function InventoryPage() {
                   <th className="px-6 py-4 font-medium">Unidade</th>
                   <th className="px-6 py-4 font-medium">Local</th>
                   <th className="px-6 py-4 font-medium">Em Estoque</th>
-                  {canEditThreshold && <th className="px-6 py-4 font-medium text-right">Ações</th>}
+                  {(canEditThreshold || canAdjustInventory) && <th className="px-6 py-4 font-medium text-right">Ações</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -147,15 +150,28 @@ export default function InventoryPage() {
                         {item.quantity}
                       </span>
                     </td>
-                    {canEditThreshold && (
+                    {(canEditThreshold || canAdjustInventory) && (
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => setEditingProduct(item.product)}
-                          className="text-slate-400 hover:text-emerald-600 transition-colors"
-                          title="Editar Alerta de Estoque"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {canAdjustInventory && (
+                            <button
+                              onClick={() => setAdjustingInventoryItem(item)}
+                              className="text-slate-400 hover:text-blue-600 transition-colors"
+                              title="Ajustar Estoque (Auditoria)"
+                            >
+                              <Scale className="h-4 w-4" />
+                            </button>
+                          )}
+                          {canEditThreshold && (
+                            <button
+                              onClick={() => setEditingProduct(item.product)}
+                              className="text-slate-400 hover:text-emerald-600 transition-colors"
+                              title="Editar Alerta de Estoque"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     )}
                   </tr>
@@ -182,6 +198,15 @@ export default function InventoryPage() {
         }}
         product={editingProduct}
         globalThreshold={settings.lowInventoryThreshold}
+      />
+
+      <AdjustInventoryModal
+        isOpen={!!adjustingInventoryItem}
+        onClose={() => setAdjustingInventoryItem(null)}
+        onSuccess={() => {
+          fetchInventory();
+        }}
+        inventoryItem={adjustingInventoryItem}
       />
     </div>
   );

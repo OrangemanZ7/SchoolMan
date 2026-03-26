@@ -173,4 +173,17 @@ const SettingsSchema = new Schema({
 
 export const Settings = models.Settings || model('Settings', SettingsSchema);
 
+// --- Inventory Adjustment Schema ---
+// Tracks manual adjustments to inventory (e.g., audits)
+const InventoryAdjustmentSchema = new Schema({
+  location: { type: Schema.Types.ObjectId, ref: 'Location', required: true },
+  product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+  previousQuantity: { type: Number, required: true },
+  newQuantity: { type: Number, required: true },
+  adjustedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  justification: { type: String, required: true },
+}, { timestamps: true });
+
+export const InventoryAdjustment = models.InventoryAdjustment || model('InventoryAdjustment', InventoryAdjustmentSchema);
+
 export const Shipment = models.Shipment || model('Shipment', ShipmentSchema);
