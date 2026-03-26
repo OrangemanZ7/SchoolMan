@@ -19,8 +19,9 @@ export default function InventoryPage() {
   const { settings } = useSettings();
   const { user } = useAuth();
   
-  const canEditThreshold = user?.role === 'admin' || user?.role === 'manager';
-  const canAdjustInventory = user?.role === 'admin' || user?.role === 'manager';
+  const canEditThreshold = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.products?.update;
+  const canAdjustInventory = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.adjustments?.create;
+  const canCreateProduct = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.products?.create;
 
   useEffect(() => {
     async function fetchLocations() {
@@ -83,13 +84,15 @@ export default function InventoryPage() {
               ))}
             </select>
           </div>
-          <button
-            onClick={() => setIsProductModalOpen(true)}
-            className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors text-sm"
-          >
-            <PackagePlus className="h-4 w-4 mr-2" />
-            Novo Produto
-          </button>
+          {canCreateProduct && (
+            <button
+              onClick={() => setIsProductModalOpen(true)}
+              className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors text-sm"
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Novo Produto
+            </button>
+          )}
         </div>
       </header>
 
