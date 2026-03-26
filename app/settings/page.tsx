@@ -22,6 +22,8 @@ export default function SettingsPage() {
   const pages = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'inventory', label: 'Estoque' },
+    { id: 'products', label: 'Produtos' },
+    { id: 'adjustments', label: 'Ajuste de Estoque' },
     { id: 'consumption', label: 'Consumo' },
     { id: 'recipes', label: 'Receitas' },
     { id: 'orders', label: 'Pedidos' },

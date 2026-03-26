@@ -31,9 +31,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Check permissions (Admin or Manager)
-    if (user.role !== 'admin' && user.role !== 'manager') {
-      return NextResponse.json({ error: 'Forbidden: Only admins or managers can adjust inventory' }, { status: 403 });
+    const { Settings } = await import('@/lib/models');
+    const settings = await Settings.findOne();
+    const canAdjust = user.role === 'admin' || settings?.rolePermissions?.[user.role]?.adjustments?.create;
+
+    // Check permissions
+    if (!canAdjust) {
+      return NextResponse.json({ error: 'Forbidden: You do not have permission to adjust inventory' }, { status: 403 });
     }
 
     const inventory = await Inventory.findById(inventoryId);
