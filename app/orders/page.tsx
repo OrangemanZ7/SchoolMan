@@ -256,32 +256,33 @@ export default function OrdersPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handlePrintOrder(order)}
-                          className="text-slate-600 hover:text-slate-900 font-medium text-xs bg-slate-100 px-2 py-1 rounded flex items-center"
+                          className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-md transition-colors"
                           title="Imprimir PDF"
                         >
-                          <Printer className="h-3 w-3 mr-1" />
-                          PDF
+                          <Printer className="h-4 w-4" />
                         </button>
                         {order.status === 'pending' && (
                           <>
                             <Link
                               href={`/orders/${order._id}/edit`}
-                              className="text-blue-600 hover:text-blue-900 font-medium text-xs bg-blue-50 px-2 py-1 rounded flex items-center"
+                              className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded-md transition-colors"
+                              title="Editar Pedido"
                             >
-                              <Edit className="h-3 w-3 mr-1" />
-                              Editar
+                              <Edit className="h-4 w-4" />
                             </Link>
                             <button
                               onClick={() => handleOpenReceiveModal(order)}
-                              className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
+                              className="p-1.5 text-emerald-600 hover:text-emerald-900 hover:bg-emerald-100 rounded-md transition-colors"
+                              title="Marcar Recebido"
                             >
-                              Marcar Recebido
+                              <CheckCircle2 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleUpdateStatus(order._id, 'cancelled')}
-                              className="text-red-600 hover:text-red-900 font-medium text-xs bg-red-50 px-2 py-1 rounded"
+                              className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-100 rounded-md transition-colors"
+                              title="Cancelar Pedido"
                             >
-                              Cancelar
+                              <XCircle className="h-4 w-4" />
                             </button>
                           </>
                         )}
