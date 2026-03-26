@@ -59,7 +59,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             />
           </div>
           <h1 className="text-sm font-bold tracking-tight text-emerald-400 leading-tight">
-            {settings.systemName || 'Prof. João Florentino'}
+            // {settings.systemName || 'Prof. João Florentino'}
+            MerendaPro
           </h1>
         </div>
         {onClose && (
