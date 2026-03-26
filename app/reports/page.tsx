@@ -231,7 +231,7 @@ export default function ReportsPage() {
         return acc;
       }, {} as Record<string, number>);
       return Object.entries(grouped)
-        .sort((a, b) => b[1] - a[1])
+        .sort((a, b) => (b[1] as number) - (a[1] as number))
         .slice(0, 10) // Top 10
         .map(([name, value]) => ({ name, value }));
     } else if (reportType === 'orders') {

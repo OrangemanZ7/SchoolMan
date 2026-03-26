@@ -167,21 +167,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             Entrar com o Google
           </button>
           
-          <div className="mt-8 text-xs text-slate-400 text-left bg-slate-50 p-4 rounded-lg">
-            <p className="font-semibold mb-1 text-slate-500">Instruções de Configuração:</p>
-            <ol className="list-decimal pl-4 space-y-1">
-              <li>Obtenha as credenciais do Google OAuth no Google Cloud Console</li>
-              <li>Adicione <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_ID</code> e <code className="bg-slate-200 px-1 rounded">GOOGLE_CLIENT_SECRET</code> aos Segredos do AI Studio</li>
-              <li>Adicione <code className="bg-slate-200 px-1 rounded">JWT_SECRET</code> aos Segredos do AI Studio</li>
-              <li>Configure o URL de callback do OAuth no Google Cloud:<br/>
-                {origin && (
-                  <code className="bg-slate-200 px-1 rounded break-all mt-1 inline-block">
-                    {origin}/api/auth/callback
-                  </code>
-                )}
-              </li>
-            </ol>
-          </div>
+
+
         </div>
       </div>
     );
