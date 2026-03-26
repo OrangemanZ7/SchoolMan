@@ -9,6 +9,7 @@ interface Role {
 
 interface Settings {
   systemName: string;
+  logoUrl?: string;
   lowInventoryThreshold: number;
   enableEmailNotifications: boolean;
   rolePermissions: Record<string, Record<string, { access: boolean; create: boolean; read: boolean; update: boolean; delete: boolean }>>;
@@ -23,6 +24,7 @@ interface SettingsContextType {
 
 const defaultSettings: Settings = {
   systemName: 'Prof. João Florentino',
+  logoUrl: '',
   lowInventoryThreshold: 50,
   enableEmailNotifications: true,
   rolePermissions: {},
@@ -52,6 +54,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
         setSettings({
           systemName: data.systemName || 'Prof. João Florentino',
+          logoUrl: data.logoUrl || '',
           lowInventoryThreshold: data.lowInventoryThreshold || 50,
           enableEmailNotifications: data.enableEmailNotifications ?? true,
           rolePermissions: data.rolePermissions || {},

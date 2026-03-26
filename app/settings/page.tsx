@@ -33,6 +33,7 @@ export default function SettingsPage() {
 
   const [settings, setSettings] = useState({
     systemName: 'Prof. João Florentino',
+    logoUrl: '',
     lowInventoryThreshold: 50,
     enableEmailNotifications: true,
     rolePermissions: {} as Record<string, Record<string, { access: boolean; create: boolean; read: boolean; update: boolean; delete: boolean }>>,
@@ -47,6 +48,7 @@ export default function SettingsPage() {
           const data = await res.json();
           setSettings({
             systemName: data.systemName || 'Prof. João Florentino',
+            logoUrl: data.logoUrl || '',
             lowInventoryThreshold: data.lowInventoryThreshold || 50,
             enableEmailNotifications: data.enableEmailNotifications ?? true,
             rolePermissions: data.rolePermissions || {},
@@ -136,6 +138,21 @@ export default function SettingsPage() {
       if (selectedRole === roleId) {
         setSelectedRole('admin');
       }
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 2MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSettings(prev => ({ ...prev, logoUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -232,6 +249,39 @@ export default function SettingsPage() {
                         onChange={(e) => setSettings({ ...settings, systemName: e.target.value })}
                         className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Logo da Escola (Usado em relatórios)
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
+                          {settings.logoUrl ? (
+                            <img src={settings.logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                          ) : (
+                            <span className="text-xs text-slate-400">Sem logo</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                          />
+                          <p className="mt-1 text-xs text-slate-500">PNG, JPG ou GIF até 2MB. Recomendado: fundo transparente.</p>
+                        </div>
+                        {settings.logoUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setSettings(prev => ({ ...prev, logoUrl: '' }))}
+                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                          >
+                            Remover
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div>

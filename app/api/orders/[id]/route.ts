@@ -6,15 +6,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     await connectToDatabase();
-    const { status, receivedItems } = await request.json();
-
-    if (!status || !['pending', 'received', 'cancelled'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
-    }
+    const { status, receivedItems, items } = await request.json();
 
     const order = await Order.findById(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    if (status && !['pending', 'received', 'cancelled'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    }
+
+    // If updating items while pending
+    if (items && order.status === 'pending' && (!status || status === 'pending')) {
+      order.items = items;
+      await order.save();
+      return NextResponse.json(order);
     }
 
     // If status is changing to 'received', we need to update inventory

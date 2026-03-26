@@ -14,7 +14,12 @@ export async function GET(request: Request) {
     }
 
     const orders = await Order.find(query)
-      .populate('contract')
+      .populate({
+        path: 'contract',
+        populate: {
+          path: 'supplier'
+        }
+      })
       .populate('items.product')
       .sort({ createdAt: -1 });
 

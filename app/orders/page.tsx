@@ -2,10 +2,14 @@
 
 import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
-import { Plus, ShoppingCart, Loader2, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Plus, ShoppingCart, Loader2, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Package, Edit, Printer } from 'lucide-react';
 import ReceiveConfirmationModal from '@/components/ReceiveConfirmationModal';
+import { useSettings } from '@/components/SettingsProvider';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function OrdersPage() {
+  const { settings } = useSettings();
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -74,6 +78,63 @@ export default function OrdersPage() {
       setIsReceiveModalOpen(false);
       setSelectedOrderForReceive(null);
     }
+  };
+
+  const handlePrintOrder = (order: any) => {
+    const doc = new jsPDF();
+    
+    if (settings.logoUrl) {
+      try {
+        doc.addImage(settings.logoUrl, 'PNG', 14, 10, 30, 30, undefined, 'FAST');
+      } catch (e) {
+        console.error('Failed to add logo to PDF', e);
+      }
+    }
+
+    doc.setFontSize(18);
+    const titleY = settings.logoUrl ? 25 : 20;
+    const titleX = settings.logoUrl ? 50 : 14;
+    
+    doc.text(`Pedido de Compra: ${order.orderNumber}`, titleX, titleY);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Escola: ${settings.systemName}`, titleX, titleY + 6);
+    doc.text(`Data do Pedido: ${new Date(order.createdAt).toLocaleDateString('pt-BR')}`, titleX, titleY + 11);
+    doc.text(`Fornecedor: ${order.type === 'contract' ? (order.contract?.supplier?.name || 'Contrato') : (order.supplierName || 'Avulso')}`, titleX, titleY + 16);
+    doc.text(`Status: ${order.status === 'received' ? 'Recebido' : order.status === 'pending' ? 'Pendente' : 'Cancelado'}`, titleX, titleY + 21);
+
+    const headers = ['Produto', 'Marca', 'Qtd.', 'Unidade', 'Preço Unit.', 'Total'];
+    const rows = order.items.map((item: any) => [
+      item.product?.name || 'Desconhecido',
+      item.product?.brand || '-',
+      item.quantity || 0,
+      item.product?.unit || '-',
+      `R$ ${(item.pricePerUnit || 0).toFixed(2).replace('.', ',')}`,
+      `R$ ${((item.quantity || 0) * (item.pricePerUnit || 0)).toFixed(2).replace('.', ',')}`
+    ]);
+
+    const totalOrderValue = order.items.reduce((acc: number, item: any) => acc + ((item.quantity || 0) * (item.pricePerUnit || 0)), 0);
+    
+    rows.push(['', '', '', '', 'Total Geral', `R$ ${totalOrderValue.toFixed(2).replace('.', ',')}`]);
+
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: settings.logoUrl ? 45 : 40,
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [16, 185, 129] },
+      footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold' },
+      didParseCell: function (data) {
+        if (data.row.index === rows.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [241, 245, 249];
+        }
+      }
+    });
+
+    doc.save(`pedido_${order.orderNumber}.pdf`);
   };
 
   const getStatusBadge = (status: string) => {
@@ -192,22 +253,39 @@ export default function OrdersPage() {
                       {order.items?.length || 0} itens
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {order.status === 'pending' && (
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenReceiveModal(order)}
-                            className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
-                          >
-                            Marcar Recebido
-                          </button>
-                          <button
-                            onClick={() => handleUpdateStatus(order._id, 'cancelled')}
-                            className="text-red-600 hover:text-red-900 font-medium text-xs bg-red-50 px-2 py-1 rounded"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handlePrintOrder(order)}
+                          className="text-slate-600 hover:text-slate-900 font-medium text-xs bg-slate-100 px-2 py-1 rounded flex items-center"
+                          title="Imprimir PDF"
+                        >
+                          <Printer className="h-3 w-3 mr-1" />
+                          PDF
+                        </button>
+                        {order.status === 'pending' && (
+                          <>
+                            <Link
+                              href={`/orders/${order._id}/edit`}
+                              className="text-blue-600 hover:text-blue-900 font-medium text-xs bg-blue-50 px-2 py-1 rounded flex items-center"
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Editar
+                            </Link>
+                            <button
+                              onClick={() => handleOpenReceiveModal(order)}
+                              className="text-emerald-600 hover:text-emerald-900 font-medium text-xs bg-emerald-50 px-2 py-1 rounded"
+                            >
+                              Marcar Recebido
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(order._id, 'cancelled')}
+                              className="text-red-600 hover:text-red-900 font-medium text-xs bg-red-50 px-2 py-1 rounded"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                   {expandedOrderId === order._id && (

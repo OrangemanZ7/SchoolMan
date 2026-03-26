@@ -155,6 +155,7 @@ export const Recipe = models.Recipe || model('Recipe', RecipeSchema);
 // System configuration
 const SettingsSchema = new Schema({
   systemName: { type: String, default: 'Prof. João Florentino' },
+  logoUrl: { type: String }, // Base64 encoded image or URL
   lowInventoryThreshold: { type: Number, default: 50 },
   enableEmailNotifications: { type: Boolean, default: true },
   rolePermissions: { type: Schema.Types.Mixed, default: {} },

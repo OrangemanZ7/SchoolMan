@@ -16,7 +16,8 @@ import {
   LogOut,
   X,
   ClipboardList,
-  Utensils
+  Utensils,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { useSettings } from './SettingsProvider';
@@ -32,6 +33,7 @@ const navItems = [
   { name: 'Locais', href: '/locations', icon: MapPin },
   { name: 'Fornecedores', href: '/suppliers', icon: Building2 },
   { name: 'Usuários', href: '/users', icon: Users },
+  { name: 'Relatórios', href: '/reports', icon: BarChart3 },
 ];
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
