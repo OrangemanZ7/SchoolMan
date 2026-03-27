@@ -127,6 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               alt="Merenda Pro Logo"
               sizes="256px"
               fill
+              priority
               className="object-contain"
               onError={(e) => {
                 // Fallback if image is not uploaded yet

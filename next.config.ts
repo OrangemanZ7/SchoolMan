@@ -1,9 +1,9 @@
-import type {NextConfig} from 'next';
-import withPWAInit from '@ducanh2912/next-pwa';
+import type { NextConfig } from "next";
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
   register: true,
 });
 
@@ -16,20 +16,20 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**', // This allows any path under the hostname
+        protocol: "https",
+        hostname: "picsum.photos",
+        port: "",
+        pathname: "/**", // This allows any path under the hostname
       },
     ],
   },
-  output: 'standalone',
-  transpilePackages: ['motion'],
+  output: "standalone",
+  transpilePackages: ["motion"],
   turbopack: {},
-  webpack: (config, {dev}) => {
+  webpack: (config, { dev }) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
     // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
-    if (dev && process.env.DISABLE_HMR === 'true') {
+    if (dev && process.env.DISABLE_HMR === "true") {
       config.watchOptions = {
         ignored: /.*/,
       };
