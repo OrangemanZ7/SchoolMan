@@ -41,6 +41,7 @@ export default function ReportsPage() {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [locations, setLocations] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('');
 
@@ -66,7 +67,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchReportData();
-  }, [reportType, selectedLocation, selectedYear, selectedMonth]);
+  }, [reportType, selectedLocation, selectedYear, selectedMonth, selectedCategory]);
 
   const fetchReportData = async () => {
     setIsLoading(true);
@@ -101,6 +102,19 @@ export default function ReportsPage() {
             return true;
           });
         }
+
+        // Client-side category filtering
+        if (selectedCategory !== '') {
+          result = result.filter((item: any) => {
+            if (reportType === 'orders' || reportType === 'shipments') {
+              // For orders and shipments, check if any item matches the category
+              return item.items?.some((i: any) => i.product?.category === selectedCategory);
+            } else {
+              // For inventory and consumption
+              return item.product?.category === selectedCategory;
+            }
+          });
+        }
         
         setData(result);
       }
@@ -111,7 +125,7 @@ export default function ReportsPage() {
     }
   };
 
-  const exportToCSV = () => {
+  const handlePrint = () => {
     if (data.length === 0) return;
 
     let headers: string[] = [];
@@ -121,13 +135,17 @@ export default function ReportsPage() {
       headers = ['Produto', 'Categoria', 'Quantidade', 'Unidade', 'Local', 'Valor Unitário', 'Valor Total'];
       rows = data.map(item => [
         item.product?.name || 'N/A',
-        item.product?.category || 'N/A',
+        item.product?.category === 'meal' ? 'Alimentação' : item.product?.category === 'office' ? 'Escritório' : item.product?.category || 'N/A',
         item.quantity,
         item.product?.unit || '',
         item.location?.name || 'N/A',
-        item.product?.price || 0,
-        (item.quantity * (item.product?.price || 0)).toFixed(2)
+        `R$ ${(item.product?.price || 0).toFixed(2).replace('.', ',')}`,
+        `R$ ${(item.quantity * (item.product?.price || 0)).toFixed(2).replace('.', ',')}`
       ]);
+      
+      const totalValue = data.reduce((sum, item) => sum + (item.quantity * (item.product?.price || 0)), 0);
+      const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
+      rows.push(['', 'Total Geral:', totalQuantity.toString(), '', '', '', `R$ ${totalValue.toFixed(2).replace('.', ',')}`]);
     } else if (reportType === 'consumption') {
       headers = ['Data', 'Produto', 'Quantidade', 'Local', 'Registrado Por', 'Observações'];
       rows = data.map(item => [
@@ -167,7 +185,7 @@ export default function ReportsPage() {
     // Add Logo if exists
     if (settings.logoUrl) {
       try {
-        doc.addImage(settings.logoUrl, 'PNG', 14, 10, 30, 30, undefined, 'FAST');
+        doc.addImage(settings.logoUrl, 'PNG', 14, 10, 18, 18, undefined, 'FAST');
       } catch (e) {
         console.error('Failed to add logo to PDF', e);
       }
@@ -175,8 +193,8 @@ export default function ReportsPage() {
 
     // Add Title
     doc.setFontSize(18);
-    const titleY = settings.logoUrl ? 25 : 20;
-    const titleX = settings.logoUrl ? 50 : 14;
+    const titleY = settings.logoUrl ? 18 : 20;
+    const titleX = settings.logoUrl ? 36 : 14;
     
     let reportTitle = 'Relatório';
     if (reportType === 'inventory') reportTitle = 'Relatório de Estoque Atual';
@@ -200,17 +218,19 @@ export default function ReportsPage() {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: settings.logoUrl ? 45 : 40,
+      startY: settings.logoUrl ? 40 : 40,
       theme: 'grid',
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [16, 185, 129] }, // Emerald 500
+      didParseCell: function (data) {
+        if (reportType === 'inventory' && data.row.index === rows.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [241, 245, 249];
+        }
+      }
     });
 
     doc.save(`relatorio_${reportType}_${new Date().toISOString().split('T')[0]}.pdf`);
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   // Chart Data Preparation
@@ -268,18 +288,10 @@ export default function ReportsPage() {
           <button
             onClick={handlePrint}
             disabled={data.length === 0 || isLoading}
-            className="flex items-center px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium transition-colors disabled:opacity-50"
+            className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50"
           >
             <Printer className="h-4 w-4 mr-2" />
             Imprimir
-          </button>
-          <button
-            onClick={exportToCSV}
-            disabled={data.length === 0 || isLoading}
-            className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Exportar PDF
           </button>
         </div>
       </header>
@@ -359,6 +371,19 @@ export default function ReportsPage() {
                   </select>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Categoria de Produto</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                >
+                  <option value="">Todas as Categorias</option>
+                  <option value="meal">Alimentação</option>
+                  <option value="office">Escritório</option>
+                </select>
+              </div>
 
               {reportType !== 'inventory' && (
                 <>
@@ -482,6 +507,8 @@ export default function ReportsPage() {
                         <th className="px-4 py-3 font-medium">Categoria</th>
                         <th className="px-4 py-3 font-medium">Local</th>
                         <th className="px-4 py-3 font-medium text-right">Qtd</th>
+                        <th className="px-4 py-3 font-medium text-right">Valor Unit.</th>
+                        <th className="px-4 py-3 font-medium text-right">Valor Total</th>
                       </tr>
                     )}
                     {reportType === 'consumption' && (
@@ -515,9 +542,11 @@ export default function ReportsPage() {
                         {reportType === 'inventory' && (
                           <>
                             <td className="px-4 py-3 font-medium text-slate-900">{item.product?.name || 'N/A'}</td>
-                            <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">{item.product?.category || 'N/A'}</span></td>
+                            <td className="px-4 py-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">{item.product?.category === 'meal' ? 'Alimentação' : item.product?.category === 'office' ? 'Escritório' : item.product?.category || 'N/A'}</span></td>
                             <td className="px-4 py-3">{item.location?.name || 'N/A'}</td>
                             <td className="px-4 py-3 text-right font-medium">{item.quantity} {item.product?.unit}</td>
+                            <td className="px-4 py-3 text-right">R$ {(item.product?.price || 0).toFixed(2).replace('.', ',')}</td>
+                            <td className="px-4 py-3 text-right font-medium text-slate-900">R$ {(item.quantity * (item.product?.price || 0)).toFixed(2).replace('.', ',')}</td>
                           </>
                         )}
                         {reportType === 'consumption' && (
@@ -563,6 +592,18 @@ export default function ReportsPage() {
                       </tr>
                     ))}
                   </tbody>
+                  {reportType === 'inventory' && data.length > 0 && (
+                    <tfoot className="bg-slate-50 font-semibold text-slate-900 border-t border-slate-200">
+                      <tr>
+                        <td colSpan={3} className="px-4 py-3 text-right">Total Geral:</td>
+                        <td className="px-4 py-3 text-right">{data.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                        <td className="px-4 py-3 text-right"></td>
+                        <td className="px-4 py-3 text-right">
+                          R$ {data.reduce((sum, item) => sum + (item.quantity * (item.product?.price || 0)), 0).toFixed(2).replace('.', ',')}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  )}
                 </table>
               )}
             </div>

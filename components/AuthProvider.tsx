@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import Image from "next/image";
-import { Loader2, ShieldCheck } from "lucide-react";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Loader2, ShieldCheck } from 'lucide-react';
 
 interface User {
   id: string;
@@ -29,23 +29,27 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [origin, setOrigin] = useState("");
+  const [origin, setOrigin] = useState('');
 
   const fetchUser = async () => {
     try {
-      const res = await fetch("/api/auth/me");
+      console.log('Fetching user from /api/auth/me...');
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      console.log('Response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('User data received:', data);
         if (data.authenticated) {
           setUser(data.user);
         } else {
           setUser(null);
         }
       } else {
+        console.log('Response not ok');
         setUser(null);
       }
     } catch (error) {
-      console.error("Failed to fetch user", error);
+      console.error('Failed to fetch user', error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -57,52 +61,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     fetchUser();
 
     const handleMessage = (event: MessageEvent) => {
-      // Validate origin is from AI Studio preview or localhost
+      // Validate origin is from AI Studio preview, localhost, or the current window origin
       const origin = event.origin;
-      if (!origin.endsWith(".run.app") && !origin.includes("localhost")) {
+      console.log('Received message from origin:', origin, 'data:', event.data);
+      if (
+        origin !== window.location.origin && 
+        !origin.endsWith('.run.app') && 
+        !origin.includes('localhost')
+      ) {
+        console.log('Origin rejected:', origin);
         return;
       }
-      if (event.data?.type === "OAUTH_AUTH_SUCCESS") {
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        console.log('OAUTH_AUTH_SUCCESS received, fetching user...');
         setIsLoading(true);
         fetchUser();
       }
     };
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const login = async () => {
     try {
-      const response = await fetch("/api/auth/url");
+      const response = await fetch('/api/auth/url');
       if (!response.ok) {
-        throw new Error("Failed to get auth URL");
+        throw new Error('Failed to get auth URL');
       }
       const { url } = await response.json();
 
       const authWindow = window.open(
         url,
-        "oauth_popup",
-        "width=600,height=700",
+        'oauth_popup',
+        'width=600,height=700'
       );
 
       if (!authWindow) {
-        alert(
-          "Por favor, permita pop-ups para este site para conectar sua conta.",
-        );
+        alert('Por favor, permita pop-ups para este site para conectar sua conta.');
       }
     } catch (error) {
-      console.error("OAuth error:", error);
-      alert("Falha ao iniciar o login. Por favor, verifique sua configuração.");
+      console.error('OAuth error:', error);
+      alert('Falha ao iniciar o login. Por favor, verifique sua configuração.');
     }
   };
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
     }
   };
 
@@ -121,30 +130,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50 p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center">
-          <div className="mx-auto w-48 h-48 relative mb-6">
-            <Image
-              src="/logo_lg.png"
-              alt="Merenda Pro Logo"
-              sizes="256px"
-              fill
+          <div className="mx-auto w-24 h-24 relative mb-6">
+            <Image 
+              src="/logo_escola.png" 
+              alt="Logo Prof. João Florentino" 
+              fill 
+              sizes="96px"
               className="object-contain"
               onError={(e) => {
                 // Fallback if image is not uploaded yet
-                (e.target as HTMLImageElement).style.display = "none";
+                (e.target as HTMLImageElement).style.display = 'none';
                 const parent = (e.target as HTMLImageElement).parentElement;
                 if (parent) {
-                  parent.innerHTML =
-                    '<div class="w-full h-full bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>';
+                  parent.innerHTML = '<div class="w-full h-full bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>';
                 }
               }}
             />
           </div>
-
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Prof. João Florentino</h1>
           <p className="text-slate-500 mb-8">
-            Faça login para gerenciar a cadeia de suprimentos da escola,
-            ingredientes de alimentação e materiais de escritório.
+            Faça login para gerenciar a cadeia de suprimentos das escolas públicas, ingredientes de alimentação e materiais de escritório.
           </p>
-
+          
           <button
             onClick={login}
             className="w-full flex items-center justify-center px-4 py-3 border border-slate-300 shadow-sm text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
@@ -170,6 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             </svg>
             Entrar com o Google
           </button>
+          
+
+
         </div>
       </div>
     );

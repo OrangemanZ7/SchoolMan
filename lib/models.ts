@@ -52,6 +52,7 @@ const ProductSchema = new Schema({
   brand: { type: String },
   category: { type: String, enum: ['meal', 'office'], required: true },
   unit: { type: String, required: true }, // e.g., kg, liters, units, boxes
+  price: { type: Number, default: 0 }, // Unit price for inventory valuation
   description: { type: String },
   supplier: { type: Schema.Types.ObjectId, ref: 'Supplier' },
   contract: { type: Schema.Types.ObjectId, ref: 'Contract' },

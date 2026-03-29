@@ -85,15 +85,15 @@ export default function OrdersPage() {
     
     if (settings.logoUrl) {
       try {
-        doc.addImage(settings.logoUrl, 'PNG', 14, 10, 30, 30, undefined, 'FAST');
+        doc.addImage(settings.logoUrl, 'PNG', 14, 10, 18, 18, undefined, 'FAST');
       } catch (e) {
         console.error('Failed to add logo to PDF', e);
       }
     }
 
     doc.setFontSize(18);
-    const titleY = settings.logoUrl ? 25 : 20;
-    const titleX = settings.logoUrl ? 50 : 14;
+    const titleY = settings.logoUrl ? 18 : 20;
+    const titleX = settings.logoUrl ? 36 : 14;
     
     doc.text(`Pedido de Compra: ${order.orderNumber}`, titleX, titleY);
     
@@ -121,7 +121,7 @@ export default function OrdersPage() {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: settings.logoUrl ? 45 : 40,
+      startY: settings.logoUrl ? 44 : 40,
       theme: 'grid',
       styles: { fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [16, 185, 129] },
@@ -261,31 +261,42 @@ export default function OrdersPage() {
                         >
                           <Printer className="h-4 w-4" />
                         </button>
-                        {order.status === 'pending' && (
-                          <>
-                            <Link
-                              href={`/orders/${order._id}/edit`}
-                              className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded-md transition-colors"
-                              title="Editar Pedido"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                            <button
-                              onClick={() => handleOpenReceiveModal(order)}
-                              className="p-1.5 text-emerald-600 hover:text-emerald-900 hover:bg-emerald-100 rounded-md transition-colors"
-                              title="Marcar Recebido"
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleUpdateStatus(order._id, 'cancelled')}
-                              className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-100 rounded-md transition-colors"
-                              title="Cancelar Pedido"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
+                        <Link
+                          href={order.status === 'pending' ? `/orders/${order._id}/edit` : '#'}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            order.status === 'pending'
+                              ? 'text-blue-600 hover:text-blue-900 hover:bg-blue-100'
+                              : 'text-slate-300 cursor-not-allowed pointer-events-none'
+                          }`}
+                          title="Editar Pedido"
+                          aria-disabled={order.status !== 'pending'}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                        <button
+                          onClick={() => order.status === 'pending' && handleOpenReceiveModal(order)}
+                          disabled={order.status !== 'pending'}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            order.status === 'pending'
+                              ? 'text-emerald-600 hover:text-emerald-900 hover:bg-emerald-100'
+                              : 'text-slate-300 cursor-not-allowed'
+                          }`}
+                          title="Marcar Recebido"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => order.status === 'pending' && handleUpdateStatus(order._id, 'cancelled')}
+                          disabled={order.status !== 'pending'}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            order.status === 'pending'
+                              ? 'text-red-600 hover:text-red-900 hover:bg-red-100'
+                              : 'text-slate-300 cursor-not-allowed'
+                          }`}
+                          title="Cancelar Pedido"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
