@@ -19,9 +19,9 @@ export default function InventoryPage() {
   const { settings } = useSettings();
   const { user } = useAuth();
   
-  const canEditThreshold = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.products?.update;
-  const canAdjustInventory = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.adjustments?.create;
-  const canCreateProduct = user?.role === 'admin' || settings.rolePermissions?.[user?.role || '']?.products?.create;
+  const canEditThreshold = user?.role === 'admin' || user?.role === 'manager' || settings.rolePermissions?.[user?.role || '']?.products?.update;
+  const canAdjustInventory = user?.role === 'admin' || user?.role === 'manager' || settings.rolePermissions?.[user?.role || '']?.adjustments?.create;
+  const canCreateProduct = user?.role === 'admin' || user?.role === 'manager' || settings.rolePermissions?.[user?.role || '']?.products?.create;
 
   useEffect(() => {
     async function fetchLocations() {
@@ -169,7 +169,7 @@ export default function InventoryPage() {
                             <button
                               onClick={() => setEditingProduct(item.product)}
                               className="text-slate-400 hover:text-emerald-600 transition-colors"
-                              title="Editar Alerta de Estoque"
+                              title="Editar Produto"
                             >
                               <Edit className="h-4 w-4" />
                             </button>

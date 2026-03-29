@@ -73,11 +73,17 @@ export default function ContractsPage() {
                   <th className="px-6 py-4 font-medium">Número do Contrato</th>
                   <th className="px-6 py-4 font-medium">Fornecedor</th>
                   <th className="px-6 py-4 font-medium">Validade</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Valor Total</th>
+                  <th className="px-6 py-4 font-medium text-right">Valor Comprado</th>
+                  <th className="px-6 py-4 font-medium text-center">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {contracts.map((contract) => (
+                {contracts.map((contract) => {
+                  const totalValue = contract.items?.reduce((sum: number, item: any) => sum + (item.maxQuantity * item.pricePerUnit), 0) || 0;
+                  const purchasedValue = contract.items?.reduce((sum: number, item: any) => sum + ((item.purchasedQuantity || 0) * item.pricePerUnit), 0) || 0;
+                  
+                  return (
                   <Fragment key={contract._id}>
                     <tr className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
@@ -93,14 +99,20 @@ export default function ContractsPage() {
                         </button>
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-900">{contract.contractNumber}</td>
-                      <td className="px-6 py-4">{contract.supplier?.alias || contract.supplierName || 'Desconhecido'}</td>
+                      <td className="px-6 py-4">{contract.supplier?.alias || contract.supplier?.name || contract.supplierName || 'Desconhecido'}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center text-slate-500">
                           <Calendar className="h-4 w-4 mr-2" />
                           Até {new Date(contract.validUntil).toLocaleDateString('pt-BR')}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-right font-medium text-slate-900">
+                        R$ {totalValue.toFixed(2).replace('.', ',')}
+                      </td>
+                      <td className="px-6 py-4 text-right font-medium text-emerald-600">
+                        R$ {purchasedValue.toFixed(2).replace('.', ',')}
+                      </td>
+                      <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
                           ${contract.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 
                             contract.status === 'expired' ? 'bg-red-100 text-red-800' : 
@@ -124,9 +136,10 @@ export default function ContractsPage() {
                                     <th className="px-4 py-3 font-medium">Produto</th>
                                     <th className="px-4 py-3 font-medium">Marca</th>
                                     <th className="px-4 py-3 font-medium">Unidade</th>
-                                    <th className="px-4 py-3 font-medium">Preço/Unid</th>
-                                    <th className="px-4 py-3 font-medium">Qtd Máx</th>
-                                    <th className="px-4 py-3 font-medium">Comprado</th>
+                                    <th className="px-4 py-3 font-medium text-right">Preço/Unid</th>
+                                    <th className="px-4 py-3 font-medium text-right">Qtd Máx</th>
+                                    <th className="px-4 py-3 font-medium text-right">Comprado</th>
+                                    <th className="px-4 py-3 font-medium text-right">Valor Gasto</th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -135,9 +148,12 @@ export default function ContractsPage() {
                                       <td className="px-4 py-3 font-medium text-slate-900">{item.product?.name || 'Desconhecido'}</td>
                                       <td className="px-4 py-3">{item.product?.brand || '-'}</td>
                                       <td className="px-4 py-3">{item.product?.unit || '-'}</td>
-                                      <td className="px-4 py-3">R$ {item.pricePerUnit?.toFixed(2).replace('.', ',') || '0,00'}</td>
-                                      <td className="px-4 py-3">{item.maxQuantity || 0}</td>
-                                      <td className="px-4 py-3">{item.purchasedQuantity || 0}</td>
+                                      <td className="px-4 py-3 text-right">R$ {item.pricePerUnit?.toFixed(2).replace('.', ',') || '0,00'}</td>
+                                      <td className="px-4 py-3 text-right">{item.maxQuantity || 0}</td>
+                                      <td className="px-4 py-3 text-right">{item.purchasedQuantity || 0}</td>
+                                      <td className="px-4 py-3 text-right font-medium text-emerald-600">
+                                        R$ {((item.purchasedQuantity || 0) * (item.pricePerUnit || 0)).toFixed(2).replace('.', ',')}
+                                      </td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -148,7 +164,7 @@ export default function ContractsPage() {
                       </tr>
                     )}
                   </Fragment>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

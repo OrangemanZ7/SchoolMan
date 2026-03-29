@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         brand: item.brand || '',
         category: item.category,
         unit: item.unit,
+        price: item.pricePerUnit, // Set the price from the contract
         supplier: body.supplier,
         contract: contractId
       });

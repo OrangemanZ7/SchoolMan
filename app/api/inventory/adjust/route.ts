@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     const { Settings } = await import('@/lib/models');
     const settings = await Settings.findOne();
-    const canAdjust = user.role === 'admin' || settings?.rolePermissions?.[user.role]?.adjustments?.create;
+    const canAdjust = user.role === 'admin' || user.role === 'manager' || settings?.rolePermissions?.[user.role]?.adjustments?.create;
 
     // Check permissions
     if (!canAdjust) {
@@ -56,6 +56,27 @@ export async function POST(request: Request) {
       adjustedBy: user._id,
       justification
     });
+
+    // Create consumption record to reflect the movement
+    const difference = previousQuantity - newQuantity;
+    if (difference !== 0) {
+      const { Location, Consumption } = await import('@/lib/models');
+      const locationDoc = await Location.findById(inventory.location);
+      const alias = locationDoc?.alias || locationDoc?.name.substring(0, 2).toUpperCase() || 'XX';
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const code = `AJ-${dateStr}-${alias}`;
+
+      await Consumption.create({
+        location: inventory.location,
+        product: inventory.product,
+        quantity: difference, // positive if stock decreased, negative if stock increased
+        consumedBy: user._id,
+        notes: `Ajuste de Estoque: ${justification}`,
+        batchId: `ADJ-${Date.now()}`,
+        code
+      });
+    }
 
     // Update inventory
     inventory.quantity = newQuantity;

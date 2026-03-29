@@ -51,6 +51,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             { $inc: { quantity: qtyToReceive } },
             { upsert: true, new: true }
           );
+
+          // Update the product's price based on the order's pricePerUnit
+          if (item.pricePerUnit !== undefined && item.pricePerUnit !== null) {
+            const Product = (await import('@/lib/models')).Product;
+            await Product.findByIdAndUpdate(item.product, { price: item.pricePerUnit });
+          }
         }
       }
     }
